@@ -1,0 +1,10 @@
+{
+	"name": "chartzone",
+	"description": "A simple vibe.d server application.",
+	"copyright": "Copyright © 2014, peaderhanily",
+	"authors": ["peaderhanily"],
+	"dependencies": {
+		"vibe-d": ">=0.7.17"
+	},
+	"versions": ["VibeDefaultMain"]
+}
