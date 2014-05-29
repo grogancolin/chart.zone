@@ -43,7 +43,8 @@ public void add(ChartzoneDB db, ChartEntry entry){
 }
 
 /**
-	Updates the chartentry with ID = oldID with the new chartentry
+	Updates the chartentry with ID = oldID with the new chart entry
+
 	TODO: NEED TO TEST
 */
 public void update(ChartzoneDB db, string oldID, ChartEntry newentry){
@@ -59,7 +60,7 @@ public struct SongEntry {
 	string artist;
 	string youtubeid;
 	uint position;
-	GenreEntry[] genres;
+	string[] genres;
 }
 
 /**

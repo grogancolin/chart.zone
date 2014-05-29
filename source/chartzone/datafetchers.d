@@ -15,6 +15,8 @@ import kxml.xml;
 /**
 	Goes to the BBC radio1 chart and gets top 40.
 	Parses it into the ChartEntry struct and returns that.
+
+	TODO: Should probably refactor to use dom.d also
 */
 public ChartEntry getBBCTop40(){
 	// read from BBC
@@ -30,22 +32,16 @@ public ChartEntry getBBCTop40(){
 	auto songInfoRegex = ctRegex!(`<div class="cht-entry-title">(?P<title>.*)</div>`, "gm");
 	auto artistMatch = match(bbcTop40, artistsRegex);
 	auto songInfoMatch = match(bbcTop40, songInfoRegex);
-	debug{ 
-		writeln("Pos: Artist, Title");
-		uint i=0;
-		foreach(c; zip(artistMatch, songInfoMatch)){
-			writefln("%s: %s, %s", i++, c[0]["artist"], c[1]["title"]);
-		}
-	}
+
 	SongEntry[] songs;
-	i=1;
+	uint i=1;
 	foreach(c; zip(artistMatch, songInfoMatch)){
 		songs ~= SongEntry(
 			c[1]["title"],
 			c[0]["artist"],
 			"youtubeid_unknown",
 			i++,
-			[]
+			["BBC Top 40", "pop"]
 			);
 	}
 	return ChartEntry(
@@ -57,6 +53,8 @@ public ChartEntry getBBCTop40(){
 /**
 	Goes to the BBC radio1 dance chart and gets top 40.
 	Parses it into the ChartEntry struct and returns that.
+
+	TODO: Should probably refactor to use dom.d also
 */
 public ChartEntry getBBCTop40Dance(){
 	// read from BBC
@@ -72,22 +70,16 @@ public ChartEntry getBBCTop40Dance(){
 	auto songInfoRegex = ctRegex!(`<div class="cht-entry-title">(?P<title>.*)</div>`, "gm");
 	auto artistMatch = match(bbcTop40, artistsRegex);
 	auto songInfoMatch = match(bbcTop40, songInfoRegex);
-	debug{ 
-		writeln("Pos: Artist, Title");
-		uint i=0;
-		foreach(c; zip(artistMatch, songInfoMatch)){
-			writefln("%s: %s, %s", i++, c[0]["artist"], c[1]["title"]);
-		}
-	}
+
 	SongEntry[] songs;
-	i=1;
+	uint i=1;
 	foreach(c; zip(artistMatch, songInfoMatch)){
 		songs ~= SongEntry(
 			c[1]["title"],
 			c[0]["artist"],
 			"youtubeid_unknown",
 			i++,
-			[]
+			["BBC Top 40", "Dance"]
 			);
 	}
 	return ChartEntry(
@@ -96,31 +88,72 @@ public ChartEntry getBBCTop40Dance(){
 		);
 }
 
+
+/**
+	Gets the top 100 off billboard hot 100, and parses it to generate a ChartEntry object.
+	
+	Sample string that it parses
+	/+
+	<div class="listing chart_listing">
+		<article class="song_review no_category chart_albumTrack_detail no_divider" id="node-1">
+			<a id="rank_1"></a>
+			<header>
+				<span class="chart_position position-up position-greatest-gains">1</span>
+				<h1>Fancy        </h1>
+				<p class="chart_info">
+					<a title="Iggy Azalea Featuring Charli XCX" href="/artist/5694588/iggy-azalea">Iggy Azalea Featuring Charli XCX</a>        <br />
+		</p> . . . etc etc
+     +/
+*/
 public ChartEntry getBillboardTop100(){
-	//urls http://www.billboard.com/charts/hot-100
-	//http://www.billboard.com/charts/hot-100?page=1
+	import arsd.dom;
+
 	string[] urls;
 	urls ~= "http://www.billboard.com/charts/hot-100";
-	foreach(i; 1..9){
+	foreach(i; 1..10){ // create the URLs we're going to use
 		urls ~= format("%s?page=%s", urls[0], i);
 	}
 
 	SongEntry[] songs;
-	//foreach(url; urls){
-		requestHTTP(urls[0],
-			(scope req){},
-			(scope res){
-				string billboardStr = res.bodyReader.readAllUTF8();
-				writefln("%s", billboardStr);
-				// parse it as xml
-				//auto html = readDocument(billboardStr);
-				// get all the song titles and artists
-				//auto songPositions = html.parseXPath(`//div[@class="listing_chart_listing]/article/a"`);
-				//auto songtitles = html.parseXPath(`//div[@class="listing_chart_listing]/article/header/h1"`);
-				//auto artists = html.parseXPath(`//div[@class="listing_chart_listing]/article/header/p/a"`);
-				//writefln("Song postions: ", songPositions[0]);
-			}
-		);
-	//}
-	return ChartEntry("", "", songs);
+
+	foreach(url; urls){
+		string billboardStr = requestHTTP(url, (scope req){} )
+			.bodyReader.readAllUTF8();
+
+		Document htmlObj = new Document();
+		htmlObj.parse(billboardStr);
+		auto chartListing = htmlObj.getElementsBySelector(`div[class="listing chart_listing"]`);
+		assert(chartListing.length==1, 
+			"Error parsing response from Billboard 100. Error: couldnt find <div class=\"listing chart_listing\">");
+		
+		foreach(songEntry; chartListing[0].getElementsByTagName(`article`)){
+			string position = songEntry
+				.getElementsByTagName(`a`)[0] // the first <a is the position
+				.getAttribute("id")
+				.strip()	//remove any pre and post whitespace
+				.replace("rank_", ""); 
+
+			string artist = songEntry
+				.getElementsByTagName(`a`)[1] // the second <a is the artist
+				.getAttribute("title")
+				.strip();
+
+			string songTitle = songEntry
+				.getElementsByTagName(`h1`)[0] // the first one is the song title
+				.innerHTML()
+				.chomp(); 
+
+			// writefln("%s: %s, %s", position, artist, songTitle);
+			// append a new song object to songs[]
+			songs ~= SongEntry(
+					songTitle,
+					artist,
+					"youtubeid_unknown",
+					position.to!uint,
+					["Billboard Top 100", "pop"]
+				);
+		}
+	}
+	//writefln("%s: %s, %s", position, artist, songTitle);
+	return ChartEntry("Billboard Top 100", songs);
 }

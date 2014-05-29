@@ -11,7 +11,8 @@ shared static this()
 
 	logInfo("Please open http://127.0.0.1:8080/ in your browser.");
 
-	getBillboardTop100();
+	ChartzoneDB db = new ChartzoneDB("chartzone", "charts");
+	db.add(getBillboardTop100());
 }
 
 void hello(HTTPServerRequest req, HTTPServerResponse res)
