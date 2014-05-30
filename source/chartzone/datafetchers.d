@@ -10,11 +10,13 @@ import chartzone.db : ChartEntry,GenreEntry,SongEntry;
 import std.regex;
 import std.stdio;
 import std.range;
+import std.xml;
 
 enum Charts : string{
 	BBCTop40 = "BBC Top 40",
 	BBCTop40Dance = "BBC Top 40 Dance",
-	BillboardTop100 = "Billboard Top 100"
+	BillboardTop100 = "Billboard Top 100",
+	ItunesTop100 = "iTunes Top 100"
 }
 /**
 	Goes to the BBC radio1 chart and gets top 40.
@@ -95,7 +97,7 @@ public ChartEntry getBBCTop40Dance(){
 
 /**
 	Gets the top 100 off billboard hot 100, and parses it to generate a ChartEntry object.
-	
+
 	Sample string that it parses
 	/+
 	<div class="listing chart_listing">
@@ -127,15 +129,15 @@ public ChartEntry getBillboardTop100(){
 		Document htmlObj = new Document();
 		htmlObj.parse(billboardStr);
 		auto chartListing = htmlObj.getElementsBySelector(`div[class="listing chart_listing"]`);
-		assert(chartListing.length==1, 
+		assert(chartListing.length==1,
 			"Error parsing response from Billboard 100. Error: couldnt find <div class=\"listing chart_listing\">");
-		
+
 		foreach(songEntry; chartListing[0].getElementsByTagName(`article`)){
 			string position = songEntry
 				.getElementsByTagName(`a`)[0] // the first <a is the position
 				.getAttribute("id")
 				.strip()	//remove any pre and post whitespace
-				.replace("rank_", ""); 
+				.replace("rank_", "");
 
 			string artist = songEntry
 				.getElementsByTagName(`a`)[1] // the second <a is the artist
@@ -145,7 +147,7 @@ public ChartEntry getBillboardTop100(){
 			string songTitle = songEntry
 				.getElementsByTagName(`h1`)[0] // the first one is the song title
 				.innerHTML()
-				.chomp(); 
+				.chomp();
 
 			// writefln("%s: %s, %s", position, artist, songTitle);
 			// append a new song object to songs[]
@@ -161,3 +163,83 @@ public ChartEntry getBillboardTop100(){
 	//writefln("%s: %s, %s", position, artist, songTitle);
 	return ChartEntry("Billboard Top 100", songs);
 }
+
+/**
+	Gets the iTunes Top 100 and puts it into a chart entry object
+	On the Itunes Top 100 results are shown as part of a ul list
+	Here is a sample
+		ul
+			li
+				h3
+					a //and in text the Song Title
+				h4
+					a //and in text the Artist name
+
+	There were problems parsing this list and img tags had to be removed due to open quotations """
+
+	TODO: Get this to work with arsd.d
+*/
+
+public ChartEntry getItunesTop100(){
+
+    string iTunesTop100 = requestHTTP("http://www.apple.com/itunes/charts/songs/",(scope req){}).bodyReader.readAllUTF8();
+
+    //Replace all img tags as some are badly formed on Apple site
+    auto imgRegex = ctRegex!(r"(<img[^>]+\>)","igm");
+    iTunesTop100 = replaceAll(iTunesTop100, imgRegex, "");
+
+    SongEntry[] songs;
+    auto html = new DocumentParser(iTunesTop100);
+    uint i = 0;
+
+    html.onStartTag["li"] = (ElementParser html)
+    {
+    	string songTitle = "", artist = "";
+        try{
+            html.onStartTag["h3"] = (ElementParser html)
+            {
+                html.onEndTag["a"] = (in Element e) { songTitle ~= e.text(); };
+                html.parse();
+            };
+
+            html.onStartTag["h4"] = (ElementParser html)
+            {
+                html.onEndTag["a"] = (in Element e) { artist ~= e.text(); };
+                html.parse();
+            };
+            html.parse();
+        }
+        catch(Exception e) {
+            writeln("%s", e.msg);
+        }
+        if(songTitle != "" && artist != ""){
+            songs ~= SongEntry(
+					songTitle,
+					artist,
+					"youtubeid_unknown",
+					i++,
+					["iTunes Top 100", "pop"]
+				);
+         }
+    };
+    html.parse();
+
+    return ChartEntry("iTunes Top 100", songs);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

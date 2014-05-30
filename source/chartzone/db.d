@@ -19,7 +19,7 @@ public:
 		_collection = db[collstr];
 	}
 
-	/* 
+	/*
 	Getters for the db interface.
 	No setters as these shouldnt need to be changed once set
 	*/
@@ -49,7 +49,7 @@ public void add(ChartzoneDB db, ChartEntry entry){
 */
 public void update(ChartzoneDB db, string oldID, ChartEntry newentry){
 	// should update the entry with oldID to be the new entry
-	db.collection.update(["ObjectID" : oldID], newentry, UpdateFlags.None); 
+	db.collection.update(["ObjectID" : oldID], newentry, UpdateFlags.None);
 }
 
 /**
@@ -73,6 +73,7 @@ public ChartEntry[] getLatestCharts(ChartzoneDB db){
 	charts ~= db.getLatestChart(Charts.BBCTop40);
 	charts ~= db.getLatestChart(Charts.BBCTop40Dance);
 	charts ~= db.getLatestChart(Charts.BillboardTop100);
+	charts ~= db.getLatestChart(Charts.ItunesTop100);
 	return charts;
 }
 

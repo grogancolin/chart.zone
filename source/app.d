@@ -21,7 +21,8 @@ shared static this()
 	db.add(getBillboardTop100());
 	db.add(getBBCTop40());
 	db.add(getBBCTop40Dance());
-	
+	db.add(getItunesTop100());
+
 	listenHTTP(settings, router);
 }
 
