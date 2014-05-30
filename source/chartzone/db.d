@@ -53,6 +53,36 @@ public void update(ChartzoneDB db, string oldID, ChartEntry newentry){
 }
 
 /**
+ Gets a ChartEntry[] containing all the ChartEntries in the DB
+*/
+public ChartEntry[] getAllCharts(ChartzoneDB db){
+	ChartEntry[] charts;
+	auto cursor = db.collection.find().sort(["date" : -1]); // get all the chart entries
+	foreach(doc; cursor){
+		ChartEntry chart;
+		chart.deserializeBson(doc);
+		charts ~= chart;
+	}
+	return charts;
+}
+
+public ChartEntry[] getLatestCharts(ChartzoneDB db){
+	import chartzone.datafetchers : Charts;
+
+	ChartEntry[] charts;
+	charts ~= db.getLatestChart(Charts.BBCTop40);
+	charts ~= db.getLatestChart(Charts.BBCTop40Dance);
+	charts ~= db.getLatestChart(Charts.BillboardTop100);
+	return charts;
+}
+
+public ChartEntry getLatestChart(ChartzoneDB db, string chartName){
+	ChartEntry chart;
+	auto bson = db.collection.find(["name" : chartName]).sort(["date" : -1]).front;
+	deserializeBson(chart, bson);
+	return chart;
+}
+/**
 	Data structure that holds a SongEntry in the DB
 */
 public struct SongEntry {
@@ -75,7 +105,7 @@ public struct GenreEntry{
 */
 public struct ChartEntry {
 	string name;
-	string date;
+	long date;
 	SongEntry[] songs;
 
 	/**
@@ -83,13 +113,13 @@ public struct ChartEntry {
 	*/
 	public this(string name, SongEntry[] songs){
 		import std.datetime;
-		this(name, Clock.currTime().toSimpleString(), songs);
+		this(name, Clock.currStdTime(), songs);
 	}
 
 	/**
 		Constructs the chart entry using the entered values
 	*/
-	public this(string name, string date, SongEntry[] songs){
+	public this(string name, long date, SongEntry[] songs){
 		this.name = name;
 		this.songs = songs;
 		this.date = date;

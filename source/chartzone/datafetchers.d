@@ -11,7 +11,11 @@ import std.regex;
 import std.stdio;
 import std.range;
 
-import kxml.xml;
+enum Charts : string{
+	BBCTop40 = "BBC Top 40",
+	BBCTop40Dance = "BBC Top 40 Dance",
+	BillboardTop100 = "Billboard Top 100"
+}
 /**
 	Goes to the BBC radio1 chart and gets top 40.
 	Parses it into the ChartEntry struct and returns that.
@@ -83,7 +87,7 @@ public ChartEntry getBBCTop40Dance(){
 			);
 	}
 	return ChartEntry(
-			"BBC Top 40",
+			"BBC Top 40 Dance",
 			songs
 		);
 }

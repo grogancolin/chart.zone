@@ -1,0 +1,10 @@
+extends layout
+block body
+	- import chartzone.db;
+	- import std.datetime;
+	- foreach(chart; charts)
+		h3 #{chart.name} as of #{SysTime(chart.date)}
+		ol
+			- foreach(song; chart.songs)
+				li
+					Artist: #{song.artist} - Title: #{song.songname}

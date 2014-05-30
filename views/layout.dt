@@ -1,0 +1,8 @@
+- void css(string file)
+	link(rel= 'stylesheet', type='text/css', href='public/styles/#{file}.css')
+doctype html
+html
+	head
+		title Chartzone
+	body
+		block body
