@@ -16,6 +16,7 @@ Chart types available are:
 enum Charts : string{
 	BBCTop40 = "BBC Top 40",
 	BBCTop40Dance = "BBC Top 40 Dance",
-	BillboardTop100 = "Billboard Top 100"
+	BillboardTop100 = "Billboard Top 100",
+	ItunesTop100 = "iTunes Top 100"
 } // defined in chartzone.datafetchers.Charts
 
