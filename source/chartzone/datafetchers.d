@@ -5,12 +5,14 @@
 module chartzone.datafetchers;
 
 import vibe.vibe;
+import arsd.dom;
+
 import chartzone.db : ChartEntry,GenreEntry,SongEntry;
 
 import std.regex;
 import std.stdio;
 import std.range;
-import std.xml;
+
 
 enum Charts : string{
 	BBCTop40 = "BBC Top 40",
@@ -21,76 +23,79 @@ enum Charts : string{
 /**
 	Goes to the BBC radio1 chart and gets top 40.
 	Parses it into the ChartEntry struct and returns that.
-
-	TODO: Should probably refactor to use dom.d also
 */
 public ChartEntry getBBCTop40(){
 	// read from BBC
-	string bbcTop40;
+	string bbcTop40 = getDataFromURL("http://www.bbc.co.uk/radio1/chart/dancesingles");
 
-	requestHTTP("http://www.bbc.co.uk/radio1/chart/singles",
-			(scope req){},
-			(scope res){
-				bbcTop40 = res.bodyReader.readAllUTF8();
-			}
-		);
-	auto artistsRegex = ctRegex!(`<div class="cht-entry-artist">(?P<artist>.*)</div>`, "gm");
-	auto songInfoRegex = ctRegex!(`<div class="cht-entry-title">(?P<title>.*)</div>`, "gm");
-	auto artistMatch = match(bbcTop40, artistsRegex);
-	auto songInfoMatch = match(bbcTop40, songInfoRegex);
+	Document htmlObj = new Document();
+	htmlObj.parse(bbcTop40);
+	auto artistListing = htmlObj.getElementsBySelector(`div[class="cht-entry-artist"]`);
+	auto trackListing = htmlObj.getElementsBySelector(`div[class="cht-entry-title"]`);
+
+	// ensure we have equal numbers
+	if(artistListing.length == 0 || trackListing.length == 0){
+		throw new ChartFetcherException("Received no 'div[class=\"cht-entry-artist\"]' tags from http://www.bbc.co.uk/radio1/chart/singles");
+	}
+	if(artistListing.length != trackListing.length){
+		throw new ChartFetcherException("Error parsing information from http://www.bbc.co.uk/radio1/chart/singles");
+	}
 
 	SongEntry[] songs;
+	auto artist_track = zip(artistListing, trackListing);
 	uint i=1;
-	foreach(c; zip(artistMatch, songInfoMatch)){
+	foreach(ele; artist_track){
 		songs ~= SongEntry(
-			c[1]["title"],
-			c[0]["artist"],
+			ele[1].innerHTML,
+			ele[0].innerHTML,
 			"youtubeid_unknown",
 			i++,
 			["BBC Top 40", "pop"]
 			);
 	}
 	return ChartEntry(
-			"BBC Top 40",
-			songs
+			"BBC Top 40", songs
 		);
+
 }
 
 /**
 	Goes to the BBC radio1 dance chart and gets top 40.
 	Parses it into the ChartEntry struct and returns that.
-
-	TODO: Should probably refactor to use dom.d also
 */
 public ChartEntry getBBCTop40Dance(){
 	// read from BBC
-	string bbcTop40;
+	string bbcTop40 = getDataFromURL("http://www.bbc.co.uk/radio1/chart/dancesingles");
 
-	requestHTTP("http://www.bbc.co.uk/radio1/chart/dancesingles",
-			(scope req){},
-			(scope res){
-				bbcTop40 = res.bodyReader.readAllUTF8();
-			}
-		);
-	auto artistsRegex = ctRegex!(`<div class="cht-entry-artist">(?P<artist>.*)</div>`, "gm");
-	auto songInfoRegex = ctRegex!(`<div class="cht-entry-title">(?P<title>.*)</div>`, "gm");
-	auto artistMatch = match(bbcTop40, artistsRegex);
-	auto songInfoMatch = match(bbcTop40, songInfoRegex);
+
+
+	Document htmlObj = new Document();
+	htmlObj.parse(bbcTop40);
+	auto artistListing = htmlObj.getElementsBySelector(`div[class="cht-entry-artist"]`);
+	auto trackListing = htmlObj.getElementsBySelector(`div[class="cht-entry-title"]`);
+
+	// ensure we have equal numbers
+	if(artistListing.length == 0 || trackListing.length == 0){
+		throw new ChartFetcherException("Received no 'div[class=\"cht-entry-artist\"]' tags from http://www.bbc.co.uk/radio1/chart/dancesingles");
+	}
+	if(artistListing.length != trackListing.length){
+		throw new ChartFetcherException("Error parsing information from http://www.bbc.co.uk/radio1/chart/dancesingles");
+	}
 
 	SongEntry[] songs;
+	auto artist_track = zip(artistListing, trackListing);
 	uint i=1;
-	foreach(c; zip(artistMatch, songInfoMatch)){
+	foreach(ele; artist_track){
 		songs ~= SongEntry(
-			c[1]["title"],
-			c[0]["artist"],
+			ele[1].innerHTML,
+			ele[0].innerHTML,
 			"youtubeid_unknown",
 			i++,
 			["BBC Top 40", "Dance"]
 			);
 	}
 	return ChartEntry(
-			"BBC Top 40 Dance",
-			songs
+			"BBC Top 40 Dance", songs
 		);
 }
 
@@ -123,8 +128,7 @@ public ChartEntry getBillboardTop100(){
 	SongEntry[] songs;
 
 	foreach(url; urls){
-		string billboardStr = requestHTTP(url, (scope req){} )
-			.bodyReader.readAllUTF8();
+		string billboardStr = getDataFromURL(url);
 
 		Document htmlObj = new Document();
 		htmlObj.parse(billboardStr);
@@ -140,12 +144,12 @@ public ChartEntry getBillboardTop100(){
 				.replace("rank_", "");
 
 			string artist = songEntry
-				.getElementsByTagName(`a`)[1] // the second <a is the artist
+				.getElementsByTagName(`a`)[1] // the second <a> is the artist
 				.getAttribute("title")
 				.strip();
 
 			string songTitle = songEntry
-				.getElementsByTagName(`h1`)[0] // the first one is the song title
+				.getElementsByTagName(`h1`)[0] // the first h1 is the song title
 				.innerHTML()
 				.chomp();
 
@@ -160,7 +164,7 @@ public ChartEntry getBillboardTop100(){
 				);
 		}
 	}
-	//writefln("%s: %s, %s", position, artist, songTitle);
+
 	return ChartEntry("Billboard Top 100", songs);
 }
 
@@ -181,8 +185,8 @@ public ChartEntry getBillboardTop100(){
 */
 
 public ChartEntry getItunesTop100(){
-
-    string iTunesTop100 = requestHTTP("http://www.apple.com/itunes/charts/songs/",(scope req){}).bodyReader.readAllUTF8();
+	import std.xml;
+    string iTunesTop100 = getDataFromURL("http://www.apple.com/itunes/charts/songs/");
 
     //Replace all img tags as some are badly formed on Apple site
     auto imgRegex = ctRegex!(r"(<img[^>]+\>)","igm");
@@ -227,19 +231,16 @@ public ChartEntry getItunesTop100(){
     return ChartEntry("iTunes Top 100", songs);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+public string getDataFromURL(string url){
+	return requestHTTP(url,
+			(scope req){}
+		).bodyReader.readAllUTF8();
+}
+/**
+	Exception for Chartzone data fetchers.
+*/
+public class ChartFetcherException : Exception{
+	this(string message, string file = __FILE__, size_t line = __LINE__, Throwable next = null){
+		super(message, file, line, next);
+	}
+}

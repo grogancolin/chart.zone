@@ -45,11 +45,44 @@ public void add(ChartzoneDB db, ChartEntry entry){
 /**
 	Updates the chartentry with ID = oldID with the new chart entry
 
+	Sample code to use
+	// get the latest chart
+	auto bbcTop40Chart = db.getLatestChart("BBC Top 40");
+	bbcTop40Chart.songs ~= SongEntry(
+			"ele[1].innerHTML",
+			"ele[0].innerHTML",
+			"NEW UTOOB ID",
+			140,
+			["BBC Top 40", "pop"]
+			);
+
+	db.update(bbcTop40Chart, bbcTop40Chart);
 	TODO: NEED TO TEST
 */
-public void update(ChartzoneDB db, string oldID, ChartEntry newentry){
+public void update(ChartzoneDB db, ChartEntry oldentry, ChartEntry newentry){
 	// should update the entry with oldID to be the new entry
-	db.collection.update(["ObjectID" : oldID], newentry, UpdateFlags.None);
+	db.collection.update(["name" : Bson(oldentry.name), "date" : Bson(oldentry.date)], newentry, UpdateFlags.None);
+}
+/**
+	Updates the chartentry with ID = oldID with the new chart entry
+
+	Sample code to use
+	// get the latest chart
+	auto bbcTop40Chart = db.getLatestChart("BBC Top 40");
+	bbcTop40Chart.songs ~= SongEntry(
+			"ele[1].innerHTML",
+			"ele[0].innerHTML",
+			"NEW UTOOB ID",
+			140,
+			["BBC Top 40", "pop"]
+			);
+
+	db.update(bbcTop40Chart.name, bbcTop40Chart.date, bbcTop40Chart);
+	TODO: NEED TO TEST
+*/
+public void update(ChartzoneDB db, string oldName, ulong oldTimestamp, ChartEntry newentry){
+	// should update the entry with oldID to be the new entry
+	db.collection.update(["name" : Bson(oldName), "date" : Bson(oldTimestamp)], newentry, UpdateFlags.None);
 }
 
 /**

@@ -18,11 +18,36 @@ shared static this()
 	router.get("/chartlist", &chartlist);
 
 	db = new ChartzoneDB("chartzone", "charts");
-	db.add(getBillboardTop100());
+
+	// Private function to fetch the updated charts, find their youtube id's, and write em to the DB.
+	// In the future, this will be in its own application
+	private void getUpdatedCharts(){
+		ChartEntry[] charts= [
+		getBillboardTop100(),
+		getBBCTop40(),
+		getBBCTop40Dance(),
+		getItunesTop100()];
+
+	//	foreach(chart; charts){
+	//		foreach(song; chart.songs){
+	//			// find youtube ID of song
+	//			song.youtubeid = "some_other_utoob_id_";
+	//		}
+	//	}
+
+		foreach(chart; charts){
+			db.add(chart);
+		}
+	}
+
+	setTimer(dur!"seconds"(30), &getUpdatedCharts, true);
+	/*db.add(getBillboardTop100());
 	db.add(getBBCTop40());
 	db.add(getBBCTop40Dance());
-	db.add(getItunesTop100());
+	db.add(getItunesTop100());*/
 
+
+	
 	listenHTTP(settings, router);
 }
 
