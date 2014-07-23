@@ -8,23 +8,129 @@ import vibe.vibe;
 import arsd.dom;
 
 import chartzone.db : ChartEntry,GenreEntry,SongEntry;
+import chartzone.utils;
 
 import std.regex;
 import std.stdio;
 import std.range;
+import std.algorithm;
 
 
-enum Charts : string{
-	BBCTop40 = "BBC Top 40",
-	BBCTop40Dance = "BBC Top 40 Dance",
-	BillboardTop100 = "Billboard Top 100",
-	ItunesTop100 = "iTunes Top 100"
+/**
+  * This enum will be something like:
+  * enum Chart : ChartMapper{
+  *     ChartName = ChartMapper("ChartName", &getChart_ChartName),
+  *     ...
+  * }
+  * makeEnum() scans the chartzone.datafetchers module for any functions beginning with
+  * "getChart_", and adds that funciton to the enum for retrieval later.
+  */
+//mixin(makeEnum());
+
+public ChartEntry function()[string] chartGetters;
+public string[] chartTypes;
+
+string mapFuncNamesToAA(alias id)(){
+        auto funNames = [__traits(allMembers, chartzone.datafetchers)]
+            .filter!(a => a.startsWith(id))
+            .map!(a => "\"" ~ a[id.length..$] ~ "\":&" ~ a[0..$])
+            .joiner(",");
+        string toRet;
+        foreach(f; funNames){
+            toRet ~= f;
+        }
+        return toRet;
 }
+shared static this(){
+    mixin("chartGetters = [" ~ mapFuncNamesToAA!("getChart_") ~ "];");
+    chartTypes = chartGetters.keys;
+}
+/+
+/** 
+* Calls the ChartMappers function pointer, and returns the ChartEntry
+*/
+public ChartEntry callChart(Chart type){
+    return type();
+}
+
+    /**
+    * Calls the ChartMappers function pointer, but only if the string passed exists.
+    */
+public ChartEntry callChart(string type){
+    //decide what type of chart (if any) is represented by type
+    mixin(makeSwitch!("type"));
+}+/
+
+/**
+* Makes an enum string that contains all the functions in module mod with names
+* starting with getChart
+*/
+private string makeEnum(){
+    auto getChartFunctions = [__traits(allMembers, chartzone.datafetchers)].
+        filter!(a => (a.startsWith("getChart_")));	
+    string toRet = "public enum Chart: ChartMapper {\n";
+    foreach(item; getChartFunctions){
+        toRet ~= "$NAME$ = ChartMapper(\"$NAME$\", &$FUNC_NAME$),\n".
+            replaceMap(["$NAME$" : item[9..$], "$FUNC_NAME$" : item]);
+    }
+    toRet = toRet[0..$-2] ~ "\n}";
+    return toRet;
+}
+
+private string makeSwitch(alias var)(){
+    auto chartTypes = [__traits(allMembers, Chart)];
+    string toRet = "switch("~var~"){\n";
+    foreach(type; chartTypes){
+    toRet ~= "\tcase \"$TYPE_STRING$\": return __traits(getMember, Chart, \"$TYPE_STRING$\")();\n"
+        .replaceMap( [
+					"$TYPE_STRING$" : type,
+					"$TYPE_FUNC$" : type
+				]);
+	}
+	toRet ~= "\tdefault: throw new ChartFetcherException(\"ERROR in searching for chart type: \"~ $VAR$);\n"
+		.replaceMap( [ "$VAR$" : var] );
+	toRet ~= "}";
+	return toRet;
+}
+
+private struct ChartMapper{
+    string name;
+    ChartEntry function() fp;
+
+    this(string name, ChartEntry function() fp){
+        this.name = name;
+        this.fp = fp;
+    }
+
+    string toString()
+    {
+        return this.name;
+    }
+
+    ChartEntry opCall(){
+        return this.fp();
+    }
+}
+/**
+	Exception for Chartzone data fetchers.
+*/
+public class ChartFetcherException : Exception{
+	this(string message, string file = __FILE__, size_t line = __LINE__, Throwable next = null){
+		super(message, file, line, next);
+	}
+}
+
+/+ All Chart Getter functions from here on.
+    NOTE: All ChartGetter functions should have the identity:
+        ChartEntry getChart_XYZ(); 
+    where XYZ is the name of the chart.
++/
+
 /**
 	Goes to the BBC radio1 chart and gets top 40.
 	Parses it into the ChartEntry struct and returns that.
 */
-public ChartEntry getBBCTop40(){
+public ChartEntry getChart_BBCTop40(){
 	// read from BBC
 	string bbcTop40 = getDataFromURL("http://www.bbc.co.uk/radio1/chart/dancesingles");
 
@@ -63,7 +169,7 @@ public ChartEntry getBBCTop40(){
 	Goes to the BBC radio1 dance chart and gets top 40.
 	Parses it into the ChartEntry struct and returns that.
 */
-public ChartEntry getBBCTop40Dance(){
+public ChartEntry getChart_BBCTop40Dance(){
 	// read from BBC
 	string bbcTop40 = getDataFromURL("http://www.bbc.co.uk/radio1/chart/dancesingles");
 
@@ -116,7 +222,7 @@ public ChartEntry getBBCTop40Dance(){
 		</p> . . . etc etc
      +/
 */
-public ChartEntry getBillboardTop100(){
+public ChartEntry getChart_BillboardTop100(){
 	import arsd.dom;
 
 	string[] urls;
@@ -184,7 +290,7 @@ public ChartEntry getBillboardTop100(){
 	TODO: Get this to work with arsd.d
 */
 
-public ChartEntry getItunesTop100(){
+public ChartEntry getChart_ItunesTop100(){
 	import std.xml;
     string iTunesTop100 = getDataFromURL("http://www.apple.com/itunes/charts/songs/");
 
@@ -236,11 +342,5 @@ public string getDataFromURL(string url){
 			(scope req){}
 		).bodyReader.readAllUTF8();
 }
-/**
-	Exception for Chartzone data fetchers.
-*/
-public class ChartFetcherException : Exception{
-	this(string message, string file = __FILE__, size_t line = __LINE__, Throwable next = null){
-		super(message, file, line, next);
-	}
-}
+
+

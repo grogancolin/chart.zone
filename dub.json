@@ -5,9 +5,10 @@
 	"authors": ["peaderhanily"],
 	"dependencies": {
 		"vibe-d": ">=0.7.17",
-		"kxml" : "~master"
+		"kxml" : "~master",
+		"docopt": ">=0.6.1-b.1"
 	},
 	"targetPath" : "binaries",
-	"targetName" : "chartzone.bin",
-	"versions": ["VibeDefaultMain"]
+	"targetName" : "chartzone",
+	"versions": ["VibeCustomMain"]
 }

@@ -2,6 +2,7 @@
 Module to interface with the DB.
 */
 module chartzone.db;
+import chartzone.datafetchers;
 
 import vibe.vibe;
 /**
@@ -85,6 +86,7 @@ public void update(ChartzoneDB db, string oldName, ulong oldTimestamp, ChartEntr
 	db.collection.update(["name" : Bson(oldName), "date" : Bson(oldTimestamp)], newentry, UpdateFlags.None);
 }
 
+
 /**
  Gets a ChartEntry[] containing all the ChartEntries in the DB
 */
@@ -100,13 +102,12 @@ public ChartEntry[] getAllCharts(ChartzoneDB db){
 }
 
 public ChartEntry[] getLatestCharts(ChartzoneDB db){
-	import chartzone.datafetchers : Charts;
+
 
 	ChartEntry[] charts;
-	charts ~= db.getLatestChart(Charts.BBCTop40);
-	charts ~= db.getLatestChart(Charts.BBCTop40Dance);
-	charts ~= db.getLatestChart(Charts.BillboardTop100);
-	charts ~= db.getLatestChart(Charts.ItunesTop100);
+    foreach(type; chartTypes){
+	    charts ~= db.getLatestChart(type);
+    }
 	return charts;
 }
 
@@ -116,6 +117,8 @@ public ChartEntry getLatestChart(ChartzoneDB db, string chartName){
 	deserializeBson(chart, bson);
 	return chart;
 }
+
+
 /**
 	Data structure that holds a SongEntry in the DB
 */
