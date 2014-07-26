@@ -26,14 +26,13 @@ import std.algorithm;
   * "getChart_", and adds that funciton to the enum for retrieval later.
   */
 //mixin(makeEnum());
-
 public ChartEntry function()[string] chartGetters;
 public string[] chartTypes;
 
-string mapFuncNamesToAA(alias id)(){
+string mapFuncNamesToAA(string funcId){
         auto funNames = [__traits(allMembers, chartzone.datafetchers)]
-            .filter!(a => a.startsWith(id))
-            .map!(a => "\"" ~ a[id.length..$] ~ "\":&" ~ a[0..$])
+            .filter!(a => a.startsWith(funcId))
+            .map!(a => "\"" ~ a[funcId.length..$] ~ "\":&" ~ a[0..$])
             .joiner(",");
         string toRet;
         foreach(f; funNames){
@@ -42,7 +41,7 @@ string mapFuncNamesToAA(alias id)(){
         return toRet;
 }
 shared static this(){
-    mixin("chartGetters = [" ~ mapFuncNamesToAA!("getChart_") ~ "];");
+    mixin("chartGetters = [" ~ mapFuncNamesToAA("getChart_") ~ "];");
     chartTypes = chartGetters.keys;
 }
 /+

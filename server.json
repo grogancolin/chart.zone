@@ -1,0 +1,15 @@
+{
+    "hostname" : "testname",
+    "port" : 8818,
+    "dbCollections" : 
+        [
+            { 
+                "name" : "charts", 
+                "value" : "charts"
+            },
+            { 
+                "name" : "youtubeCredentials", 
+                "value" : "youtubeCredentialss"
+            },
+        ]
+}

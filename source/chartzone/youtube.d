@@ -9,7 +9,7 @@ import std.uri : encode;
 /**
 	Module provides functions to talk to the youtube data api
 */
-debug import std.stdio;
+import std.stdio;
 
 //private enum RefreshToken = "1/v4UeHKbO5ucVxE1jtKjphc3mUK9UGqaegJF2xS6C4Dg";
 //private enum ClientID = "1018084892284-tbe2rk62ri4jcs8arjlp6escslqlafl8.apps.googleusercontent.com";

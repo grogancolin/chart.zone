@@ -8,17 +8,42 @@ import docopt;
 import chartzone.datafetchers;
 import chartzone.db;
 import chartzone.youtube;
+import chartzone.settings;
 ChartzoneDB db;
+auto doc = "chartzone
 
+    Usage:
+        chartzone server [--settings SETTINGSFILE] [--port PORT]
+        chartzone update CHART [--db DB] [--collection COLL]
+        chartzone -h | --help
+        chartzone --version
+
+    Options:
+        --server 
+        --update CHART              The chart to get. Can be one of (CHARTSTRING).
+        -s --settings SETTINGSFILE  [default: server.json]
+        -p --port PORT              The port to run the server under [default: 8080]
+        -d --db DB                  The mongo DB to update [default: chartzone]
+        -t --collection COLL        The mongo Collection to update [default: charts]
+        -h --help                   Show this screen.
+        -v --version                Show version.
+";
 /**
   * Custom main function
   */
 public void main(string[] args){
    
+    /* 
+     * Print message on exit. 
+     * Some things to add here maybe, is a list of updates that happened to the system over the course of its life.
+     * May help in debugging
+     */
     scope(exit){
             writefln("Shutting down.");
     }
+
     auto cli = docopt.docopt(doc, args[1..$], true, "0.01alpha");
+    writefln("%s", typeof(cli).stringof);
     writefln("%s", cli);
 
     if(cli["update"].toString.to!bool){
@@ -38,6 +63,8 @@ public void main(string[] args){
     }
     else if(cli["server"].toString.to!bool){
         //read settings file
+        ChartzoneSettings chartzoneSettings = 
+            parseSettingsFile(cli["--settings"].toString);
         writefln("Starting server...");
         
         auto settings = new HTTPServerSettings;
@@ -49,7 +76,11 @@ public void main(string[] args){
         router.get("/test", &hello);
         router.get("/chartlist", &chartlist);
 
-        db = new ChartzoneDB("chartzone", "charts");
+        db = new ChartzoneDB(
+                chartzoneSettings.dbName, 
+                chartzoneSettings.dbCollections["charts"]
+            );
+
 
         listenHTTP(settings, router);
 
@@ -58,24 +89,6 @@ public void main(string[] args){
         runEventLoop();
     }
 }
-auto doc = "chartzone
-
-    Usage:
-        chartzone server [--settings SETTINGSFILE] [--port PORT]
-        chartzone update CHART [--db DB] [--collection COLL]
-        chartzone -h | --help
-        chartzone --version
-
-    Options:
-        --server 
-        --update CHART              The chart to get. Can be one of (CHARTSTRING).
-        -s --settings SETTINGSFILE  [default: server.json]
-        -p --port PORT              The port to run the server under [default: 8080]
-        -d --db DB                  The mongo DB to update [default: chartzone]
-        -t --collection COLL        The mongo Collection to update [default: charts]
-        -h --help                   Show this screen.
-        -v --version                Show version.
-";
 
 /*shared static this()
 {
@@ -105,8 +118,8 @@ void chartlist(HTTPServerRequest req, HTTPServerResponse res)
 	if("chartname" in req.query)
 		chartname = req.query["chartname"];
 	if(chartname.length > 0 ){
-		//res.renderCompat!("chartlist.dt", ChartEntry[], "charts")([db.getLatestChart(chartname)]);
-		res.renderCompat!("chartlist.dt", ChartEntry[], "charts")([]);
+		res.renderCompat!("chartlist.dt", ChartEntry[], "charts")([db.getLatestChart(chartname)]);
+		//res.renderCompat!("chartlist.dt", ChartEntry[], "charts")([]);
     }
 	else{
 		//res.renderCompat!("chartlist.dt", ChartEntry[], "charts")(db.getLatestCharts());
