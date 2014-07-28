@@ -1,6 +1,8 @@
 module chartzone.youtube;
 
 import chartzone.utils;
+import mainMod = chartzone.app;
+import chartzone.settings;
 
 import vibe.vibe;
 import std.string;
@@ -22,9 +24,13 @@ private static YoutubeToken youtubeToken;
 */
 shared static this(){
 
+    // read the settings file
+    auto chartzoneSettings = new ChartzoneSettings();
+    chartzoneSettings = parseSettingsFile(mainMod.settingsFile);
+
 	// get the youtube token from the DB.
-	auto db = new YoutubeDB("chartzone", "youtube");
-    auto credDb = new YoutubeDB("chartzone", "youtubestatic");
+	auto db = new YoutubeDB(chartzoneSettings.dbName, chartzoneSettings.dbCollections["youtube"]);
+    auto credDb = new YoutubeDB(chartzoneSettings.dbName, chartzoneSettings.dbCollections["youtubeCredentials"]);
     auto credObj = credDb.collection.find();
     if(credObj.empty()){
     	string line;

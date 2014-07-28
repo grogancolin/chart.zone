@@ -9,7 +9,7 @@ import vibe.vibe;
 public class ChartzoneSettings{
 
     string hostname = "localhost";
-    uint port = 8080;
+    ushort port = 8080;
     string dbName = "chartzone";
     string[string] dbCollections;
 
@@ -28,7 +28,7 @@ public class ChartzoneSettings{
     public void parseSettings(Json j){
 
         if(auto d = "hostname" in j) hostname = d.get!string;
-        if(auto d = "port" in j) port = cast(uint)d.get!long;
+        if(auto d = "port" in j) port = cast(ushort)d.get!long;
         if(auto d = "dbName" in j) dbName = d.get!string;
         if(auto arr = "dbCollections" in j){
             foreach(obj; *arr){
