@@ -19,7 +19,7 @@ auto doc = "chartzone
         chartzone --version
 
     Options:
-        --server 
+        --server
         --update CHART              The chart to get. Can be one of (CHARTSTRING).
         -s --settings SETTINGSFILE  [default: server.json]
         -p --port PORT              The port to run the server under [default: 8080]
@@ -32,9 +32,9 @@ auto doc = "chartzone
   * Custom main function
   */
 public void main(string[] args){
-   
-    /* 
-     * Print message on exit. 
+
+    /*
+     * Print message on exit.
      * Some things to add here maybe, is a list of updates that happened to the system over the course of its life.
      * May help in debugging
      */
@@ -49,11 +49,11 @@ public void main(string[] args){
     if(cli["update"].toString.to!bool){
         // go ahead and call the updater lib
         db = new ChartzoneDB(
-                cli["--db"].toString, 
+                cli["--db"].toString,
                 cli["--collection"].toString);
 
         if(cli["CHART"].toString !in chartGetters){
-            stderr.writefln("Error retrieving chart: %s. Ensure chart is in range: %s", 
+            stderr.writefln("Error retrieving chart: %s. Ensure chart is in range: %s",
                     cli["CHART"], chartGetters.keys);
             return;
         }
@@ -63,10 +63,10 @@ public void main(string[] args){
     }
     else if(cli["server"].toString.to!bool){
         //read settings file
-        ChartzoneSettings chartzoneSettings = 
+        ChartzoneSettings chartzoneSettings =
             parseSettingsFile(cli["--settings"].toString);
         writefln("Starting server...");
-        
+
         auto settings = new HTTPServerSettings;
         settings.port = 8080;
         //settings.port = cli["--port"].toString().to!ushort;
@@ -74,10 +74,13 @@ public void main(string[] args){
 
         auto router = new URLRouter;
         router.get("/test", &hello);
-        router.get("/chartlist", &chartlist);
+        router.get("/", &chartlist);
+        router.get("/about", &about);
+        router.get("/contact", &contact);
+        router.get("*", serveStaticFiles("public/"));
 
         db = new ChartzoneDB(
-                chartzoneSettings.dbName, 
+                chartzoneSettings.dbName,
                 chartzoneSettings.dbCollections["charts"]
             );
 
@@ -118,11 +121,22 @@ void chartlist(HTTPServerRequest req, HTTPServerResponse res)
 	if("chartname" in req.query)
 		chartname = req.query["chartname"];
 	if(chartname.length > 0 ){
-		res.renderCompat!("chartlist.dt", ChartEntry[], "charts")([db.getLatestChart(chartname)]);
+		res.renderCompat!("music.dt", ChartEntry[], "charts")([db.getLatestChart(chartname)]);
 		//res.renderCompat!("chartlist.dt", ChartEntry[], "charts")([]);
     }
 	else{
 		//res.renderCompat!("chartlist.dt", ChartEntry[], "charts")(db.getLatestCharts());
 		res.renderCompat!("chartlist.dt", ChartEntry[], "charts")();
     }
+}
+
+void about(HTTPServerRequest req, HTTPServerResponse res)
+{
+    res.renderCompat!("about.dt")();
+}
+
+
+void contact(HTTPServerRequest req, HTTPServerResponse res)
+{
+    res.renderCompat!("contact.dt")();
 }

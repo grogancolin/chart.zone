@@ -2,9 +2,63 @@ extends layout
 block body
 	- import chartzone.db;
 	- import std.datetime;
-	- foreach(chart; charts)
-		h3 #{chart.name} as of #{SysTime(chart.date)}
-		ol
-			- foreach(song; chart.songs)
-				li
-					Artist: #{song.artist} - Title: #{song.songname}
+
+	#header
+		a(href="http://localhost:8080/")
+			img(src="../images/ChartZoneLarge.png", alt="Chart.Zone Homepage", title="Chart.Zone Homepage")
+		a(href="http://localhost:8080/about", title="About Us")
+			h1 About Us
+		a(href="http://localhost:8080/contact", title="Contact Us")
+			h1 Contact Us
+	#outerWrapper
+		#innerWrapper
+			.column1
+				a(href="http://localhost:8080?chartname=BBC Top 40", title="BBC Top 40")
+					.box.uk
+						p BBC Top 40
+							br
+							|(UK)
+				a(href="http://localhost:8080?chartname=BBC Dance Top 40", title="BBC Dance Top 40")
+					.box.uk
+						p BBC Dance Top 40
+							br
+							|(UK)
+				a(href="http://localhost:8080?chartname=iTunes Top 100", title="iTunes Top 100")
+					.box.global
+						p iTunes Top 100
+							br
+							|(Global)
+			.column2
+				a(href="http://localhost:8080?chartname=Billboard Hot 100", title="Billboard Hot 100")
+					.box.usa
+						p Billboard Hot 100
+							br
+							|(USA)
+				a(href="http://localhost:8080?chartname=Billboard Hot 200", title="Billboard Hot 200")
+					.box.usa
+						p Billboard 200
+							br
+							|(USA)
+				a(href="http://localhost:8080?chartname=Billboard Canadian Hot 100", title="Billboard Canadian Hot 100")
+					.box.canada
+						p Billboard Canadian Hot 100
+							br
+							|(CAN)
+			.column3
+				a(href="http://localhost:8080?chartname=Irish Top 100", title="Irish Top 100")
+					.box.ireland
+						p Irish Top 100
+							br
+							|(IRL)
+				a(href="http://localhost:8080?chartname=German Top 100", title="German Top 100")
+					.box.germany
+						p German Top 100
+							br
+							|(GER)
+				a(href="http://localhost:8080?chartname=Euro Top 100", title="Euro Top 100")
+					.box.euro
+						p Euro Top 100
+							br
+							|(EU)
+			#footer
+

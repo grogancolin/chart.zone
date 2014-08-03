@@ -1,8 +1,12 @@
 - void css(string file)
-	link(rel= 'stylesheet', type='text/css', href='public/styles/#{file}.css')
+	link(rel='stylesheet', type='text/css', href='styles/#{file}.css')
 doctype html
 html
 	head
 		title Chartzone
+		link(rel="icon", type="image/x-icon", href='images/favicon.ico')
+		- css("style");
+		script(src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js")
+		script(src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js")
 	body
 		block body

@@ -1,0 +1,65 @@
+extends layout
+block body
+	- import chartzone.db;
+	- import std.datetime;
+
+	#header
+		a(href="http://localhost:8080/")
+			img(src="../images/ChartZoneLarge.png", alt="Chart.Zone Homepage", title="Chart.Zone Homepage")
+		a(href="http://localhost:8080/about", title="About Us")
+			h1 About Us
+		a(href="http://localhost:8080/contact", title="Contact Us")
+			h1 Contact Us
+	#buttonBoxHead Playing Order Controls ▲
+	#buttonBox(style="display:none;")
+		.button#prev
+			a(href="#", onClick="playOrder('prev')", title="Play Previous Video when current finishes")
+				p.singleBracket &lsaquo;
+		.button#static
+			a(href="#", onClick="playOrder('static')", title="Stay on page when video finishes")
+				.pause
+					&#9616;&#9616;
+		.button#shuffle
+			a(href="#", onClick="playOrder('shuffle')", title="Shuffle Playing Order")
+				img(src="../images/shuffle.png", alt="Shuffle Playing Order", title="Shuffle Playing Order")
+		.button#next
+			a(href="#", onClick="playOrder('next')", title="Play Next Video when current finishes")
+				p.singleBracket &rsaquo;
+	#outerWrapper
+		#playerBox
+			#player
+		#hovercard
+			#artist
+				span Artist
+				h3
+			#songName
+				span Song Title
+				h3
+			#chartName
+				span Chart Name
+				h3
+			#position
+				span Position
+				h3
+		#coverflowIndex
+			.indexPos.firstPos(onClick="changeVideo('FTQbiNvZqaY')") First Song
+			.indexPos.middlePos(onClick="changeVideo('FTQbiNvZqaY')") Middle Song
+			.indexPos.lastPos(onClick="changeVideo('FTQbiNvZqaY')") Last Song
+			.goToBox Go to:
+				input(type="text", id="goToBoxText")
+				input(type="submit", onClick="goToIndex()", id="goToBoxSubmit", value='Go!')
+
+		.coverflow
+			- foreach(i;1 .. 101)
+				.cover(onClick="changeVideo('MV_3Dpw-BRY')",  onmouseover="hovercardData('Kavinssdkfsjdfhskdjfhskdjfhsdkjfhskdky', 'NightCall', 'BBC Top 40', #{i})")=i
+
+
+	script(type="text/javascript", src="scripts/youtubePlayerControls.js")
+	script(type="text/javascript", src="scripts/jquery.interpolate.js")
+	script(type="text/javascript", src="scripts/jquery.touchSwipe.min.js")
+	script(type="text/javascript", src="scripts/jquery.mousewheel.js")
+	script(type="text/javascript", src="scripts/jquery.coverflow.js")
+	script(type="text/javascript", src="scripts/coverflow.controls.js")
+	script(type="text/javascript", src="scripts/hovercardControls.js")
+	script(type="text/javascript", src="scripts/playingOrderCtrls.js")
+	script(type="text/javascript", src="scripts/hovercardControls.js")

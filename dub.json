@@ -1,7 +1,7 @@
 {
 	"name": "chartzone",
-	"description": "A simple vibe.d server application.",
-	"copyright": "Copyright © 2014, peaderhanily",
+	"description": "An Online chart music player.",
+	"copyright": "Copyright © 2014, peaderhanily, Colin Grogan",
 	"authors": ["peaderhanily"],
 	"dependencies": {
 		"vibe-d": ">=0.7.17",
