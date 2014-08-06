@@ -13,13 +13,13 @@ $(document).mouseup(function (e)
 		console.log('open')
 		div.style.display = 'block';
 		header.innerHTML = 'Playing Order Controls ▲';
-		header.style.marginTop = '160px';
+		header.style.marginTop = '130px';
 		return;
 	}
 	else if(e.target === header && container.is(':visible')){
 		console.log('close')
 		div.style.display = 'none';
-		header.style.marginTop = '100px';
+		header.style.marginTop = '70px';
 		header.innerHTML = 'Playing Order Controls ▼';
 		return;
 	}
@@ -27,7 +27,7 @@ $(document).mouseup(function (e)
 	{
 		console.log('close click anywhere')
 		div.style.display = 'none';
-		header.style.marginTop = '100px';
+		header.style.marginTop = '70px';
 		header.innerHTML = 'Playing Order Controls ▼';
 		return;
 	}

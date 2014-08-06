@@ -18,7 +18,7 @@ $(function() {
 	});
 
 	$('.middlePos').click(function() {
-		var middle = Math.floor(($('.cover').length) / 2);
+		var middle = Math.floor(($('.cover').length) / 2) - 1;
 		$('.coverflow').coverflow('index',middle);
 		$('.coverflow').coverflow('index',middle+1);
 		$('.coverflow').coverflow('index',middle);

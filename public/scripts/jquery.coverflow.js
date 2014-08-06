@@ -30,19 +30,19 @@
 		options: {
 			animateComplete:	undefined,
 			animateStep:		undefined,
-			density:			10,
-			duration:			'fast',
+			density:			15,
+			duration:			'normal',
 			easing:				undefined,
 			index:				0,
 			innerAngle:			-50,
 			innerCss:			undefined,
-			innerOffset:		100 / 30,
+			innerOffset:		100 / 100,
 			innerScale:			0.75,
 			outerAngle:			-30,
 			outerCss:			undefined,
 			outerScale:			0.25,
 			selectedCss:		undefined,
-			visible:			10,		// 'density', 'all', NNN (exact)
+			visible:			15,		// 'density', 'all', NNN (exact)
 			width:				undefined,
 
 			change:				undefined,		// Whenever index is changed
