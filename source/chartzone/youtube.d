@@ -1,7 +1,7 @@
 module chartzone.youtube;
 
 import chartzone.utils;
-import mainMod = chartzone.app;
+import mainMod = chartzone.main;
 import chartzone.settings;
 
 import vibe.vibe;

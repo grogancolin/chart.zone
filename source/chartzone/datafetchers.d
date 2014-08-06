@@ -155,11 +155,11 @@ public ChartEntry getChart_BBCTop40(){
 			ele[0].innerHTML,
 			"youtubeid_unknown",
 			i++,
-			["BBC Top 40", "pop"]
+			["BBCTop40", "pop"]
 			);
 	}
 	return ChartEntry(
-			"BBC Top 40", songs
+			"BBCTop40", songs
 		);
 
 }
@@ -196,11 +196,11 @@ public ChartEntry getChart_BBCTop40Dance(){
 			ele[0].innerHTML,
 			"youtubeid_unknown",
 			i++,
-			["BBC Top 40", "Dance"]
+			["BBCTop40Dance", "Dance"]
 			);
 	}
 	return ChartEntry(
-			"BBC Top 40 Dance", songs
+		"BBCTop40Dance", songs
 		);
 }
 
@@ -265,12 +265,12 @@ public ChartEntry getChart_BillboardTop100(){
 					artist,
 					"youtubeid_unknown",
 					position.to!uint,
-					["Billboard Top 100", "pop"]
+				["BillboardTop100", "pop"]
 				);
 		}
 	}
 
-	return ChartEntry("Billboard Top 100", songs);
+	return ChartEntry("BillboardTop100", songs);
 }
 
 /**
@@ -327,13 +327,13 @@ public ChartEntry getChart_ItunesTop100(){
 					artist,
 					"youtubeid_unknown",
 					i++,
-					["iTunes Top 100", "pop"]
+				["ItunesTop100", "pop"]
 				);
          }
     };
     html.parse();
 
-    return ChartEntry("iTunes Top 100", songs);
+	return ChartEntry("ItunesTop100", songs);
 }
 
 public string getDataFromURL(string url){

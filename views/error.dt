@@ -1,0 +1,12 @@
+extends layout
+block body
+	#header
+		a(href="http://localhost:8080/")
+			img(src="../images/ChartZoneLarge.png", alt="Chart.Zone Homepage", title="Chart.Zone Homepage")
+		a(href="http://localhost:8080/about", title="About Us")
+			h1 About Us
+		a(href="http://localhost:8080/contact", title="Contact Us")
+			h1 Contact Us
+	#outerWrapper
+		#innerWrapper
+			p Thats an error! #{msg}

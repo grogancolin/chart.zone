@@ -2,6 +2,9 @@
 Module to interface with the DB.
 */
 module chartzone.db;
+
+import std.stdio;
+
 import chartzone.datafetchers;
 
 import vibe.vibe;
@@ -103,7 +106,6 @@ public ChartEntry[] getAllCharts(ChartzoneDB db){
 
 public ChartEntry[] getLatestCharts(ChartzoneDB db){
 
-
 	ChartEntry[] charts;
     foreach(type; chartTypes){
 	    charts ~= db.getLatestChart(type);
@@ -113,8 +115,13 @@ public ChartEntry[] getLatestCharts(ChartzoneDB db){
 
 public ChartEntry getLatestChart(ChartzoneDB db, string chartName){
 	ChartEntry chart;
+	try{
 	auto bson = db.collection.find(["name" : chartName]).sort(["date" : -1]).front;
-	deserializeBson(chart, bson);
+		deserializeBson(chart, bson);
+	} catch(Exception e){
+		throw new DBSearchException("Error finding chart : " ~ chartName);
+	}
+
 	return chart;
 }
 
@@ -161,4 +168,12 @@ public struct ChartEntry {
 		this.songs = songs;
 		this.date = date;
 	}
+}
+
+
+public class DBSearchException : Exception{
+	this(string message, string file = __FILE__, size_t line = __LINE__, Throwable next = null) {
+		super(message, file, line, next);
+	}
+
 }

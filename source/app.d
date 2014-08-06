@@ -1,3 +1,5 @@
+module chartzone.main;
+
 import std.stdio;
 import std.conv;
 import core.thread;
@@ -9,7 +11,14 @@ import chartzone.datafetchers;
 import chartzone.db;
 import chartzone.youtube;
 import chartzone.settings;
-ChartzoneDB db;
+
+
+/*
+ * Global data
+ * */
+public ChartzoneDB db;
+public string settingsFile = "server.json";
+
 auto doc = "chartzone
 
     Usage:
@@ -73,8 +82,7 @@ public void main(string[] args){
         settings.bindAddresses = ["::1", "127.0.0.1"];
 
         auto router = new URLRouter;
-        router.get("/test", &hello);
-        router.get("/", &chartlist);
+		router.get("/", &chartlist);
         router.get("/about", &about);
         router.get("/contact", &contact);
         router.get("*", serveStaticFiles("public/"));
@@ -108,11 +116,6 @@ public void main(string[] args){
 	listenHTTP(settings, router);
 }*/
 
-void hello(HTTPServerRequest req, HTTPServerResponse res)
-{
-	res.writeBody("Hello, World!");
-}
-
 void chartlist(HTTPServerRequest req, HTTPServerResponse res)
 {
 	//writefln("%s", req.query);
@@ -121,12 +124,18 @@ void chartlist(HTTPServerRequest req, HTTPServerResponse res)
 	if("chartname" in req.query)
 		chartname = req.query["chartname"];
 	if(chartname.length > 0 ){
-		res.renderCompat!("music.dt", ChartEntry[], "charts")([db.getLatestChart(chartname)]);
-		//res.renderCompat!("chartlist.dt", ChartEntry[], "charts")([]);
+		try{
+			res.renderCompat!("music.dt", ChartEntry[], "charts")([ db.getLatestChart(chartname) ]);
+		} catch (DBSearchException dbE){
+			res.renderCompat!("error.dt", string, "msg")("Error finding chart with name: "~req.query["chartname"]);
+		}
     }
 	else{
-		//res.renderCompat!("chartlist.dt", ChartEntry[], "charts")(db.getLatestCharts());
-		res.renderCompat!("chartlist.dt", ChartEntry[], "charts")();
+		try{
+			res.renderCompat!("chartlist.dt", ChartEntry[], "charts")(db.getLatestCharts());
+		} catch (DBSearchException dbE){
+			res.renderCompat!("error.dt", string, "msg")("Error finding charts in DB. Contact admins for assistance...");
+		}
     }
 }
 
