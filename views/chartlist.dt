@@ -12,53 +12,69 @@ block body
 			h1 Contact Us
 	#outerWrapper
 		#innerWrapper
-			.column1
-				a(href="http://localhost:8080?chartname=BBC Top 40", title="BBC Top 40")
-					.box.uk
-						p BBC Top 40
-							br
-							|(UK)
-				a(href="http://localhost:8080?chartname=BBC Dance Top 40", title="BBC Dance Top 40")
-					.box.uk
-						p BBC Dance Top 40
-							br
-							|(UK)
-				a(href="http://localhost:8080?chartname=iTunes Top 100", title="iTunes Top 100")
-					.box.global
-						p iTunes Top 100
-							br
-							|(Global)
-			.column2
-				a(href="http://localhost:8080?chartname=Billboard Hot 100", title="Billboard Hot 100")
-					.box.usa
-						p Billboard Hot 100
-							br
-							|(USA)
-				a(href="http://localhost:8080?chartname=Billboard Hot 200", title="Billboard Hot 200")
-					.box.usa
-						p Billboard 200
-							br
-							|(USA)
-				a(href="http://localhost:8080?chartname=Billboard Canadian Hot 100", title="Billboard Canadian Hot 100")
-					.box.canada
-						p Billboard Canadian Hot 100
-							br
-							|(CAN)
-			.column3
-				a(href="http://localhost:8080?chartname=Irish Top 100", title="Irish Top 100")
-					.box.ireland
-						p Irish Top 100
-							br
-							|(IRL)
-				a(href="http://localhost:8080?chartname=German Top 100", title="German Top 100")
-					.box.germany
-						p German Top 100
-							br
-							|(GER)
-				a(href="http://localhost:8080?chartname=Euro Top 100", title="Euro Top 100")
-					.box.euro
-						p Euro Top 100
-							br
-							|(EU)
+			#optionsToggle(class="switch-toggle switch-candy switch-candy-blue")
+				input(id="musicCharts", name="state-d", type="radio", checked)
+				label(for="musicCharts", onClick="changeList('music')")Music Charts
+				input(id="movieSoundtracks", name="state-d", type="radio")
+				label(for="movieSoundtracks", onClick="changeList('movies')")Movie Soundtracks
+				//- NEEDED FOR TOGGLE STYLING FOR SOME REASON
+				a()
+			#musicList
+				.column1
+					a(href="http://localhost:8080?chartname=BBC Top 40", title="BBC Top 40")
+						.box.uk
+							p BBC Top 40
+								br
+								|(UK)
+					a(href="http://localhost:8080?chartname=BBC Dance Top 40", title="BBC Dance Top 40")
+						.box.uk
+							p BBC Dance Top 40
+								br
+								|(UK)
+					a(href="http://localhost:8080?chartname=iTunes Top 100", title="iTunes Top 100")
+						.box.global
+							p iTunes Top 100
+								br
+								|(Global)
+				.column2
+					a(href="http://localhost:8080?chartname=Billboard Hot 100", title="Billboard Hot 100")
+						.box.usa
+							p Billboard Hot 100
+								br
+								|(USA)
+					a(href="http://localhost:8080?chartname=Billboard Hot 200", title="Billboard Hot 200")
+						.box.usa
+							p Billboard 200
+								br
+								|(USA)
+					a(href="http://localhost:8080?chartname=Billboard Canadian Hot 100", title="Billboard Canadian Hot 100")
+						.box.canada
+							p Billboard Canadian Hot 100
+								br
+								|(CAN)
+				.column3
+					a(href="http://localhost:8080?chartname=Irish Top 100", title="Irish Top 100")
+						.box.ireland
+							p Irish Top 100
+								br
+								|(IRL)
+					a(href="http://localhost:8080?chartname=German Top 100", title="German Top 100")
+						.box.germany
+							p German Top 100
+								br
+								|(GER)
+					a(href="http://localhost:8080?chartname=Euro Top 100", title="Euro Top 100")
+						.box.euro
+							p Euro Top 100
+								br
+								|(EU)
+			#moviesList(style="display:none;")
+				.column1
+					.box
+				.column2
+					.box
+				.column3
+					.box
 			#footer
+	script(type="text/javascript", src="scripts/chartList.listControls.js")
 

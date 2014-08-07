@@ -1,0 +1,16 @@
+<html>
+<head>
+<link href="/public/styles/style.css" type="text/css" rel="stylesheet">
+</head>
+
+<body>
+<div id="wrapper">
+	<div class="column">
+	</div>
+	<div class="column">
+	</div>
+	<div class="column">
+	</div>
+</div>
+<body>
+</html>
