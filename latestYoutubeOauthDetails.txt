@@ -1,7 +1,7 @@
 Client-ID:			1056916856143-7p19rpdd9ktf8phghf7ol10thbjuuaug.apps.googleusercontent.com
 Client-Secret:		5DnsSEMr-rn44Kh5sY8nYW-W
 Redirect URIs:		urn:ietf:wg:oauth:2.0:oob OR http://localhost
-Redirect URIs:		AIzaSyBBMJC79sn74pqIE2xVkoHu10eMDgldXs0
+API KEY:			AIzaSyBBMJC79sn74pqIE2xVkoHu10eMDgldXs0
 
 
 

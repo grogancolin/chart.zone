@@ -8,5 +8,9 @@ block body
 		a(href="http://localhost:8080/contact", title="Contact Us")
 			h1 Contact Us
 	#outerWrapper
-		#innerWrapper
-			p Thats an error! #{msg}
+		#errorMessage
+			p Thats an error!
+				br
+				| #{msg}
+		#dangerZoneBox
+			iframe(src="https://www.youtube.com/embed/siwpn14IE7E?feature=player_detailpage", width="700px", height="400px", frameborder="0")

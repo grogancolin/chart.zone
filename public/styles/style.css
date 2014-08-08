@@ -787,3 +787,46 @@ Think Symetry for this or it will look terrible
     5px 5px 0 #444,
     6px 6px 0 #444; /* end of 4 level deep dark shadow */
 }
+
+
+/*****************************************************
+*
+*           ERROR.dt
+*
+******************************************************/
+
+#errorMessage{
+    padding-left:5px;
+    padding-right:5px;
+    padding-bottom:5px;
+    width:600px;
+    margin-right: auto;
+    margin-left: auto;
+    border-radius:50%;
+    margin-top: 80px;
+    color:white;
+    font-size: 20px;
+    line-height: 25px;
+    font-weight: 800px;
+
+    box-shadow:
+    1px 1px 0 #CCC,
+    2px 2px 0 #CCC, /* end of 2 level deep grey shadow */
+    3px 3px 0 #444,
+    4px 4px 0 #444,
+    5px 5px 0 #444,
+    6px 6px 0 #444; /* end of 4 level deep dark shadow */
+
+    background: #feccb1; /* Old browsers */
+    background: -moz-linear-gradient(top, #feccb1 0%, #ea5507 0%, #f17432 100%, #fb955e 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#feccb1), color-stop(0%,#ea5507), color-stop(100%,#f17432), color-stop(100%,#fb955e)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #feccb1 0%,#ea5507 0%,#f17432 100%,#fb955e 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #feccb1 0%,#ea5507 0%,#f17432 100%,#fb955e 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #feccb1 0%,#ea5507 0%,#f17432 100%,#fb955e 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #feccb1 0%,#ea5507 0%,#f17432 100%,#fb955e 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#feccb1', endColorstr='#fb955e',GradientType=0 ); /* IE6-9 */
+}
+
+#dangerZoneBox {
+    margin-top:20px;
+}
