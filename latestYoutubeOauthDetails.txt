@@ -1,0 +1,34 @@
+Client-ID:			1056916856143-7p19rpdd9ktf8phghf7ol10thbjuuaug.apps.googleusercontent.com
+Client-Secret:		5DnsSEMr-rn44Kh5sY8nYW-W
+Redirect URIs:		urn:ietf:wg:oauth:2.0:oob OR http://localhost
+Redirect URIs:		AIzaSyBBMJC79sn74pqIE2xVkoHu10eMDgldXs0
+
+
+
+-URL string to get acess token to get the refresh token with POST request
+-enter the url into the browser select chartzone and login then accept.
+-now in the address bar see the access code usually 4/LETTERS&NUMBERS.....etc
+
+https://accounts.google.com/o/oauth2/auth?client_id=1056916856143-7p19rpdd9ktf8phghf7ol10thbjuuaug.apps.googleusercontent.com&redirect_uri=http://localhost&scope=https://www.googleapis.com/auth/youtube&response_type=code&access_type=offline&approval_prompt=force
+
+//You'll need to get a new response
+The Response on (08/08/14) was = 4/4XeXWWB9SsuLQ65_U_gm-5dQxmTV.0qriaFwF10AXoiIBeO6P2m_qZ3hujwI
+
+-Request a refresh token
+-Get Poster add-on for firefox
+-Enter the params one by one then select copy to body
+-use application/x-www-form-urlencoded as the content-type
+-send it to the following url by POST https://accounts.google.com/o/oauth2/token
+-Body should look similar to below
+
+code=4/7IlrQRSaMIcnHg4raV25wQLOB-eu.si7GWeAivikWoiIBeO6P2m9CildujwI&client_id=1056916856143-7p19rpdd9ktf8phghf7ol10thbjuuaug.apps.googleusercontent.com&client_secret=5DnsSEMr-rn44Kh5sY8nYW-Wredirect_uri=http://localhost&grant_type=authorization_code
+
+-Response will look like this
+-THIS IS THE ACTUAL RESPONSE ON (08/08/14)
+{
+  "access_token" : "ya29.WwDVCS3mRnHm6yEAAADDEJ7YsHAtZ015kiQpaQAr7SAV4vOFWvj4nzDr3vP0-3t3Pe81CJj8C-EnPGJ1Y8s",
+  "token_type" : "Bearer",
+  "expires_in" : 3600,
+  "refresh_token" : "1/eNymBHLGVHlwScBCzi1Q01QTcRffGc6xQVwTYjm9JJM"
+}
+
