@@ -108,18 +108,32 @@ public ChartEntry[] getLatestCharts(ChartzoneDB db){
 
 	ChartEntry[] charts;
     foreach(type; chartTypes){
-	    charts ~= db.getLatestChart(type);
+	    auto tmpChart = db.getLatestChart(type, true);
+	    if(tmpChart.name.length == 0)
+	    	logInfo("Error finding a chart..skipping it");
+	    else
+	    	charts ~= tmpChart;
     }
-	return charts;
+
+    if(charts.length == 0)
+    	throw new DBSearchException("Error finding charts");
+    else
+		return charts;
 }
 
-public ChartEntry getLatestChart(ChartzoneDB db, string chartName){
+public ChartEntry getLatestChart(ChartzoneDB db, string chartName, bool inLoop){
 	ChartEntry chart;
 	try{
 	auto bson = db.collection.find(["name" : chartName]).sort(["date" : -1]).front;
 		deserializeBson(chart, bson);
 	} catch(Exception e){
-		throw new DBSearchException("Error finding chart : " ~ chartName);
+		logInfo("Error finding chart : %s", chartName);
+		if(inLoop){
+			ChartEntry emptyChart;
+			return emptyChart;
+		}
+		else
+			throw new DBSearchException("Error finding chart : " ~ chartName);
 	}
 
 	return chart;
