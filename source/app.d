@@ -125,7 +125,7 @@ void chartlist(HTTPServerRequest req, HTTPServerResponse res)
 		chartname = req.query["chartname"];
 	if(chartname.length > 0 ){
 		try{
-			res.renderCompat!("music.dt", ChartEntry[], "charts")([ db.getLatestChart(chartname, false) ]);
+			res.renderCompat!("music.dt", ChartEntry[], "charts")([ db.getLatestChart(chartname) ]);
 		} catch (DBSearchException dbE){
 			res.renderCompat!("error.dt", string, "msg")("Error finding chart with name: "~req.query["chartname"]);
 		}

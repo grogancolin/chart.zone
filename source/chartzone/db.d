@@ -108,34 +108,27 @@ public ChartEntry[] getLatestCharts(ChartzoneDB db){
 
 	ChartEntry[] charts;
     foreach(type; chartTypes){
-	    auto tmpChart = db.getLatestChart(type, true);
-	    if(tmpChart.name.length == 0)
-	    	logInfo("Error finding a chart..skipping it");
-	    else
-	    	charts ~= tmpChart;
+		try{
+			charts ~= db.getLatestChart(type);
+		} catch(NoEntryForChartException e){
+			logInfo(e.msg);
+			// no entry for that chart. Moving on
+			continue;
+		}
     }
-
     if(charts.length == 0)
     	throw new DBSearchException("Error finding charts");
     else
 		return charts;
 }
 
-public ChartEntry getLatestChart(ChartzoneDB db, string chartName, bool inLoop){
-	ChartEntry chart;
-	try{
-	auto bson = db.collection.find(["name" : chartName]).sort(["date" : -1]).front;
-		deserializeBson(chart, bson);
-	} catch(Exception e){
-		logInfo("Error finding chart : %s", chartName);
-		if(inLoop){
-			ChartEntry emptyChart;
-			return emptyChart;
-		}
-		else
-			throw new DBSearchException("Error finding chart : " ~ chartName);
-	}
 
+public ChartEntry getLatestChart(ChartzoneDB db, string chartName){
+	ChartEntry chart;
+	auto cursor = db.collection.find(["name" : chartName]).sort(["date" : -1]);
+	if(cursor.empty) 
+		throw new NoEntryForChartException("Nothing for chart %s was found in DB".format(chartName));
+	deserializeBson(chart, cursor.front);
 	return chart;
 }
 
@@ -163,6 +156,7 @@ public struct GenreEntry{
 */
 public struct ChartEntry {
 	string name;
+	string country;
 	long date;
 	SongEntry[] songs;
 
@@ -182,6 +176,15 @@ public struct ChartEntry {
 		this.songs = songs;
 		this.date = date;
 	}
+	/**
+		Constructs the chart entry using the entered values
+	*/
+	public this(string name, long date, string country, SongEntry[] songs){
+		this.name = name;
+		this.songs = songs;
+		this.country = country;
+		this.date = date;
+	}
 }
 
 
@@ -189,5 +192,10 @@ public class DBSearchException : Exception{
 	this(string message, string file = __FILE__, size_t line = __LINE__, Throwable next = null) {
 		super(message, file, line, next);
 	}
+}
 
+public class NoEntryForChartException : Exception{
+	this(string message, string file = __FILE__, size_t line = __LINE__, Throwable next = null) {
+		super(message, file, line, next);
+	}
 }
