@@ -22,8 +22,8 @@ public static string settingsFile = "server.json";
 auto doc = "chartzone
 
     Usage:
-        chartzone server [--settings SETTINGSFILE] [--port PORT]
-        chartzone update CHART [--db DB] [--collection COLL]
+        chartzone [--settings SETTINGSFILE] [--port PORT] server 
+        chartzone [--db DB] [--collection COLL] update CHART ...
         chartzone -h | --help
         chartzone --version
 
@@ -61,14 +61,28 @@ public void main(string[] args){
                 cli["--db"].toString,
                 cli["--collection"].toString);
 
-        if(cli["CHART"].toString !in chartGetters){
-            stderr.writefln("Error retrieving chart: %s. Ensure chart is in range: %s",
-                    cli["CHART"], chartGetters.keys);
-            return;
-        }
+		string[] errorCharts;
+		string[] successCharts;
+		foreach(chartName; cli["CHART"].asList){
+			if(chartName !in chartGetters){
+				errorCharts ~= chartName;
+			}
+			else{
+				db.add(chartGetters[chartName]());
+				successCharts ~= chartName;
+			}
+		}
 
-        logInfo("In app.d");
-        db.add(chartGetters[cli["CHART"].toString]());
+		if(successCharts.length>0){
+			writefln("Successfully updated charts: ");
+			foreach(chart; successCharts) writefln("\t%s", chart);
+		}
+		if(errorCharts.length>0){
+			stderr.writefln("Error updating charts: ");
+			foreach(chart; errorCharts) writefln("\t%s", chart);
+
+			writefln("Ensure charts are in range: \n\t%s", chartGetters.keys);
+		}
         return;
     }
     else if(cli["server"].toString.to!bool){
