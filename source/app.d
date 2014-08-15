@@ -67,6 +67,7 @@ public void main(string[] args){
             return;
         }
 
+        logInfo("In app.d");
         db.add(chartGetters[cli["CHART"].toString]());
         return;
     }

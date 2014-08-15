@@ -8,13 +8,15 @@ import vibe.vibe;
 import arsd.dom;
 
 import chartzone.db : ChartEntry,GenreEntry,SongEntry;
+import chartzone.youtube;
 import chartzone.utils;
 
 import std.regex;
 import std.stdio;
 import std.range;
+import std.uri;
 import std.algorithm;
-
+import std.utf;
 
 /**
   * This enum will be something like:
@@ -27,6 +29,7 @@ import std.algorithm;
   */
 //mixin(makeEnum());
 public ChartEntry function()[string] chartGetters;
+
 public string[] chartTypes;
 
 string mapFuncNamesToAA(string funcId){
@@ -40,12 +43,14 @@ string mapFuncNamesToAA(string funcId){
         }
         return toRet;
 }
+
+
 shared static this(){
     mixin("chartGetters = [" ~ mapFuncNamesToAA("getChart_") ~ "];");
     chartTypes = chartGetters.keys;
 }
 /+
-/** 
+/**
 * Calls the ChartMappers function pointer, and returns the ChartEntry
 */
 public ChartEntry callChart(Chart type){
@@ -66,7 +71,7 @@ public ChartEntry callChart(string type){
 */
 private string makeEnum(){
     auto getChartFunctions = [__traits(allMembers, chartzone.datafetchers)].
-        filter!(a => (a.startsWith("getChart_")));	
+        filter!(a => (a.startsWith("getChart_")));
     string toRet = "public enum Chart: ChartMapper {\n";
     foreach(item; getChartFunctions){
         toRet ~= "$NAME$ = ChartMapper(\"$NAME$\", &$FUNC_NAME$),\n".
@@ -121,17 +126,19 @@ public class ChartFetcherException : Exception{
 
 /+ All Chart Getter functions from here on.
     NOTE: All ChartGetter functions should have the identity:
-        ChartEntry getChart_XYZ(); 
+        ChartEntry getChart_XYZ();
     where XYZ is the name of the chart.
 +/
+
 
 /**
 	Goes to the BBC radio1 chart and gets top 40.
 	Parses it into the ChartEntry struct and returns that.
 */
 public ChartEntry getChart_BBCTop40(){
+	logInfo("In datafetchers.d getBBCTOP40");
 	// read from BBC
-	string bbcTop40 = getDataFromURL("http://www.bbc.co.uk/radio1/chart/dancesingles");
+	string bbcTop40 = getDataFromURL("http://www.bbc.co.uk/radio1/chart/singles");
 
 	Document htmlObj = new Document();
 	htmlObj.parse(bbcTop40);
@@ -146,20 +153,31 @@ public ChartEntry getChart_BBCTop40(){
 		throw new ChartFetcherException("Error parsing information from http://www.bbc.co.uk/radio1/chart/singles");
 	}
 
+	//Create Playlist and get playlist Id
+	string playListId = createPlaylist("BBC Top 40".getChartTitleDate());
+
 	SongEntry[] songs;
+	string nameToSearch;
+	string videoId;
 	auto artist_track = zip(artistListing, trackListing);
 	uint i=1;
 	foreach(ele; artist_track){
+		nameToSearch = format("%s %s", ele[1].innerHTML.decode(), ele[0].innerHTML.decode());
+		nameToSearch = nameToSearch.htmlEntitiesDecode;
+		videoId = searchFor(nameToSearch);
+		//Add song to playlist
+		addVideoToPlaylist(playListId, videoId);
 		songs ~= SongEntry(
-			ele[1].innerHTML,
-			ele[0].innerHTML,
-			"youtubeid_unknown",
+			ele[1].innerHTML.htmlEntitiesDecode,
+			ele[0].innerHTML.htmlEntitiesDecode,
+			videoId,
 			i++,
 			["BBCTop40", "pop"]
 			);
 	}
+
 	return ChartEntry(
-			"BBCTop40", "uk", songs
+			"BBCTop40", "uk", playListId,  songs
 		);
 
 }
@@ -187,20 +205,32 @@ public ChartEntry getChart_BBCTop40Dance(){
 		throw new ChartFetcherException("Error parsing information from http://www.bbc.co.uk/radio1/chart/dancesingles");
 	}
 
+
+	//Create Playlist and get playlist Id
+	string playListId = createPlaylist("BBC Top 40 Dance".getChartTitleDate());
+
 	SongEntry[] songs;
+	string nameToSearch;
+	string videoId;
+
 	auto artist_track = zip(artistListing, trackListing);
 	uint i=1;
 	foreach(ele; artist_track){
+		nameToSearch = format("%s %s", ele[1].innerHTML.decode(), ele[0].innerHTML.decode());
+		nameToSearch = nameToSearch.htmlEntitiesDecode;
+		videoId = searchFor(nameToSearch);
+		//Add song to playlist
+		addVideoToPlaylist(playListId, videoId);
 		songs ~= SongEntry(
-			ele[1].innerHTML,
-			ele[0].innerHTML,
-			"youtubeid_unknown",
+			ele[1].innerHTML.htmlEntitiesDecode,
+			ele[0].innerHTML.htmlEntitiesDecode,
+			videoId,
 			i++,
 			["BBCTop40Dance", "Dance"]
 			);
 	}
 	return ChartEntry(
-		"BBCTop40Dance", "uk", songs
+		"BBCTop40Dance", "uk", playListId,  songs
 		);
 }
 
@@ -230,7 +260,12 @@ public ChartEntry getChart_BillboardTop100(){
 		urls ~= format("%s?page=%s", urls[0], i);
 	}
 
+	//Create Playlist and get playlist Id
+	string playListId = createPlaylist("Billboard Top 100".getChartTitleDate());
+
 	SongEntry[] songs;
+	string nameToSearch;
+	string videoId;
 
 	foreach(url; urls){
 		string billboardStr = getDataFromURL(url);
@@ -258,82 +293,77 @@ public ChartEntry getChart_BillboardTop100(){
 				.innerHTML()
 				.chomp();
 
+			nameToSearch = format("%s %s", songTitle, artist);
+			nameToSearch = nameToSearch.htmlEntitiesDecode;
+			videoId = searchFor(nameToSearch);
+			//Add song to playlist
+			addVideoToPlaylist(playListId, videoId);
+
 			// writefln("%s: %s, %s", position, artist, songTitle);
 			// append a new song object to songs[]
 			songs ~= SongEntry(
-					songTitle,
-					artist,
-					"youtubeid_unknown",
+					songTitle.htmlEntitiesDecode,
+					artist.htmlEntitiesDecode,
+					videoId,
 					position.to!uint,
 				["BillboardTop100", "pop"]
 				);
 		}
 	}
 
-	return ChartEntry("BillboardTop100", "usa", songs);
+	return ChartEntry("BillboardTop100", "usa", playListId,  songs);
+
 }
 
 /**
 	Gets the iTunes Top 100 and puts it into a chart entry object
-	On the Itunes Top 100 results are shown as part of a ul list
-	Here is a sample
-		ul
-			li
-				h3
-					a //and in text the Song Title
-				h4
-					a //and in text the Artist name
-
-	There were problems parsing this list and img tags had to be removed due to open quotations """
-
-	TODO: Get this to work with arsd.d
 */
 
 public ChartEntry getChart_ItunesTop100(){
-	import std.xml;
+	import arsd.dom;
     string iTunesTop100 = getDataFromURL("http://www.apple.com/itunes/charts/songs/");
 
     //Replace all img tags as some are badly formed on Apple site
     auto imgRegex = ctRegex!(r"(<img[^>]+\>)","igm");
     iTunesTop100 = replaceAll(iTunesTop100, imgRegex, "");
 
-    SongEntry[] songs;
-    auto html = new DocumentParser(iTunesTop100);
+    Document htmlObj = new Document();
+	htmlObj.parse(iTunesTop100);
+	auto chartListing = htmlObj.getElementsByTagName(`ul`);
+	assert(chartListing.length >= 1,
+			"Error parsing response from iTunes Top 100. Error: couldnt find at least one ul tag");
+
+    //Create Playlist and get playlist Id
+	string playListId = createPlaylist("iTunes Top 100".getChartTitleDate());
+
+	SongEntry[] songs;
+	string nameToSearch;
+	string videoId;
     uint i = 0;
-
-    html.onStartTag["li"] = (ElementParser html)
-    {
+    //second ul is the list
+    foreach(songEntry; chartListing[3].getElementsByTagName(`li`)){
     	string songTitle = "", artist = "";
-        try{
-            html.onStartTag["h3"] = (ElementParser html)
-            {
-                html.onEndTag["a"] = (in Element e) { songTitle ~= e.text(); };
-                html.parse();
-            };
+    	songTitle = songEntry.getElementsByTagName(`h3`)[0].getElementsByTagName(`a`)[0].innerText();
+    	artist = songEntry.getElementsByTagName(`h4`)[0].getElementsByTagName(`a`)[0].innerText();
 
-            html.onStartTag["h4"] = (ElementParser html)
-            {
-                html.onEndTag["a"] = (in Element e) { artist ~= e.text(); };
-                html.parse();
-            };
-            html.parse();
-        }
-        catch(Exception e) {
-            writeln("%s", e.msg);
-        }
-        if(songTitle != "" && artist != ""){
+    	if(songTitle != "" && artist != ""){
+        	nameToSearch = format("%s %s", songTitle, artist);
+			nameToSearch = nameToSearch.htmlEntitiesDecode;
+			videoId = searchFor(nameToSearch);
+			//Add song to playlist
+			addVideoToPlaylist(playListId, videoId);
             songs ~= SongEntry(
-					songTitle,
-					artist,
-					"youtubeid_unknown",
+					songTitle.htmlEntitiesDecode,
+					artist.htmlEntitiesDecode,
+					videoId,
 					i++,
 				["ItunesTop100", "pop"]
 				);
          }
-    };
-    html.parse();
+    }
 
-	return ChartEntry("ItunesTop100", "global", songs);
+	return ChartEntry("ItunesTop100", "global", playListId,  songs);
+
 }
 
 public string getDataFromURL(string url){

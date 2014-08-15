@@ -133,7 +133,7 @@ public ChartEntry[] getLatestCharts(ChartzoneDB db){
 public ChartEntry getLatestChart(ChartzoneDB db, string chartName){
 	ChartEntry chart;
 	auto cursor = db.collection.find(["name" : chartName]).sort(["date" : -1]);
-	if(cursor.empty) 
+	if(cursor.empty)
 		throw new NoEntryForChartException("Nothing for chart %s was found in DB".format(chartName));
 	deserializeBson(chart, cursor.front);
 	return chart;
@@ -165,39 +165,20 @@ public struct ChartEntry {
 	string name;
 	string country="global";
 	long date;
+	string playListId;
 	SongEntry[] songs;
 
 	/**
 		Constructs the chart entry using the current system date/time as the date
 	*/
-	public this(string name, SongEntry[] songs){
+	public this(string name, string country, string playListId, SongEntry[] songs){
 		import std.datetime;
-		this(name, Clock.currStdTime(), songs);
-	}
-	/**
-		Constructs the chart entry using the current system date/time as the date
-	*/
-	public this(string name, string country, SongEntry[] songs){
-		import std.datetime;
-		this(name, Clock.currStdTime(), country, songs);
-	}
-
-	/**
-		Constructs the chart entry using the entered values
-	*/
-	public this(string name, long date, SongEntry[] songs){
 		this.name = name;
-		this.songs = songs;
-		this.date = date;
-	}
-	/**
-		Constructs the chart entry using the entered values
-	*/
-	public this(string name, long date, string country, SongEntry[] songs){
-		this.name = name;
-		this.songs = songs;
 		this.country = country;
+		this.date = Clock.currStdTime();
+		this.songs = songs;
 		this.date = date;
+		this.playListId = playListId;
 	}
 }
 

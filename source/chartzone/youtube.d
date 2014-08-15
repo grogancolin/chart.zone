@@ -47,10 +47,10 @@ shared static this(){
 
 	    	write("Enter the Refresh Token: ");
 	    	readf(" %s\n", &_refreshToken);
-		
+
             write("Enter the public API key: ");
             readf(" %s\n", &_publicApiKey);
-	    	
+
 	    	writef("You entered:\n\tClient ID: %s\n\tClient Secret: %s\n\tRefresh Token: %s\n\tPublic Api Key: %s\nIs this correct? (y/n/quit) ",
 	    		_clientId, _clientSecret, _refreshToken, _publicApiKey);
 
@@ -59,7 +59,7 @@ shared static this(){
     			case "y": confirmation = true; break;
     			case "n": confirmation = false; break;
     			case "quit": // exit the program
-    				import core.stdc.stdlib; 
+    				import core.stdc.stdlib;
     				exit(1); break;
     			default: break;
     		}
@@ -151,19 +151,32 @@ public void updateYoutubeCredentials(YoutubeCredentials old, YoutubeCredentials 
 /**
  * Returns a JSON object containing the result from youtube.
  */
-public Json searchFor(string name, string orderBy="relevance"){
-	checkAndUpdateYoutubeToken();
-	
+public string searchFor(string name){
+
+    //These can be added as params later if needed
+    string regionCode="ie";
+    string orderBy="relevance";
+    string type="video";
+
+    logInfo("In youtube.d search for");
+
 	// construct the url to send
-	string url = "https://www.googleapis.com/youtube/v3/search?part=id&type=video&order=$ORDERBY$&q=$SEARCHFOR$&key=$PUBLIC_API_KEY$"
+	string url = "https://www.googleapis.com/youtube/v3/search?part=id&order=$ORDERBY$&q=$SEARCHFOR$&regionCode=$regionCode$&type=$TYPE$&key=$PUBLIC_API_KEY$"
             .replaceMap(
             ["$ORDERBY$" : orderBy,
             "$SEARCHFOR$" : name,
+            "$regionCode$" : regionCode,
+            "$TYPE$" : type,
             "$PUBLIC_API_KEY$" : credentials.publicApiKey]).
 		encode;
     //	debug writefln("Sending ----\n%s\n---- to youtube;", url);
-	auto response = requestHTTP(url, (scope req){}).bodyReader.readAllUTF8;
-	return response.parseJsonString;
+	writefln("Search URL: %s", url);
+	auto response = parseJsonString(requestHTTP(url, (scope req){}).bodyReader.readAllUTF8);
+	debug writefln("---\nGot: %s\nfrom youtube\n---;", response);
+	//return response.parseJsonString;
+    //^^^^^Above can be used later when/if we find a better way of picking the correct song
+    //Untill the just return the top song in the lists ID
+    return response.items[0].id.videoId.to!string;
 }
 
 /**
@@ -171,35 +184,60 @@ public Json searchFor(string name, string orderBy="relevance"){
 * According to youtube api doc, a POST to googleapis.com/youtube/v3/playlists
 * a playlist will create
 */
-public Json addVideoToPlaylist(string[] videoIds){
-    checkAndUpdateYoutubeToken();
-    string url = "https://www.googleapis.com/youtube/v3/playlists?part=$PART$"
-    	.replaceMap(["$PART$" : "snippet,status"]);
+public Json addVideoToPlaylist(string playlistId, string videoId){
+    //Check token is up to date
+    //checkAndUpdateYoutubeToken();
+    string url = "https://www.googleapis.com/youtube/v3/playlistItems?part=$PART$&key=$API_KEY$&access_token=$ACCESS_TOKEN$"
+    	.replaceMap(["$PART$" : "snippet,status",
+                     "$API_KEY$" : credentials.publicApiKey,
+                     "$ACCESS_TOKEN$" : youtubeToken.access_token]);
+
+
+    Json obj = Json.emptyObject;
+    obj.snippet = Json.emptyObject;
+    obj.snippet.playlistId = playlistId;
+    obj.snippet.resourceId = Json.emptyObject;
+    obj.snippet.resourceId.kind = "youtube#video";
+    obj.snippet.resourceId.videoId = videoId;
+    obj.status = Json.emptyObject;
+    obj.status.privacyStatus = "public";
+    obj.kind = "youtube#playlistItem";
 
     auto response = requestHTTP(url, (scope req){
-
+        req.method = HTTPMethod.POST;
+        req.writeJsonBody(obj);
         }).bodyReader.readAllUTF8;
+    logInfo("%s", response.parseJsonString );
     return response.parseJsonString;
 }
 
 /**
 * Adds videos to playlist
 */
-public Json createPlaylist(string playlistName){
+public string createPlaylist(string playlistName){
+
     checkAndUpdateYoutubeToken();
     string url = "https://www.googleapis.com/youtube/v3/playlists?part=$PART$&access_token=$ACCESS_TOKEN$"
         .replaceMap(["$PART$" : "snippet,status",
-            "$ACCESS_TOKEN$" : youtubeToken.access_token]);
+                     "$ACCESS_TOKEN$" : youtubeToken.access_token]);
 
-    string postBody = "snippet.title=$SNIPPET_TITLE$"
-    	.replaceMap(["$SNIPPET_TITLE$" : playlistName]);
-
-    writefln("Creating playlist with url: %s and postBody: %s", url, postBody);
+    writefln("Creating playlist with url: %s", url);
     auto response = requestHTTP(url, (scope req){
             req.method = HTTPMethod.POST;
-            req.writeBody(cast(ubyte[])postBody);
+            req.writeJsonBody(["snippet": ["title" : playlistName], "status" : ["privacyStatus" : "public"]]);
         }).bodyReader.readAllUTF8;
-    return response.parseJsonString;
+
+    //Return the new playlists ID as string
+    string playListId = response.parseJsonString.id.to!string;
+    logInfo("%s", playListId);
+
+    //ERROR CHECKING NEEDS TO BE DONE
+    /*if(playListId.length > 0){
+        logInfo("JSON RESPONSE WAS : %s", response);
+        throw new JsonResponseException("There was an error creatin the playlist");
+    }*/
+
+    return playListId;
 }
 /*
  *  Data structure that holds information on youtube api token
@@ -269,4 +307,3 @@ public:
         return _client;
     }
 }
-
