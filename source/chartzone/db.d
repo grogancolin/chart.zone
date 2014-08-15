@@ -178,7 +178,6 @@ public struct ChartEntry {
 		this.country = country;
 		this.date = Clock.currStdTime();
 		this.songs = songs;
-		this.date = date;
 		this.playListId = playListId;
 	}
 }

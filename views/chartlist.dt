@@ -24,7 +24,7 @@ block body
 			h1 Contact Us
 	#outerWrapper
 		#innerWrapper
-			#optionsToggle(class="switch-toggle switch-candy switch-candy-blue")
+			#optionsToggle(class="switch-toggle switch-candy switch-candy-blue", style="display:none;")
 				input(id="musicCharts", name="state-d", type="radio", checked)
 				label(for="musicCharts", onClick="changeList('music')")Music Charts
 				input(id="movieSoundtracks", name="state-d", type="radio")
