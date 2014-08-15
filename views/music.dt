@@ -42,16 +42,16 @@ block body
 				span Position
 				h3
 		#coverflowIndex
-			.indexPos.firstPos(onClick="changeVideo('FTQbiNvZqaY')") First Song
-			.indexPos.middlePos(onClick="changeVideo('FTQbiNvZqaY')") Middle Song
-			.indexPos.lastPos(onClick="changeVideo('FTQbiNvZqaY')") Last Song
+			.indexPos.firstPos(onClick="changeVideo('#{chart.songs[0].youtubeid}')") First Song
+			.indexPos.middlePos(onClick="changeVideo('#{chart.songs[cast(int)chart.songs.length/2].youtubeid}')") Middle Song
+			.indexPos.lastPos(onClick="changeVideo('#{chart.songs[$-1].youtubeid}')") Last Song
 			.goToBox Go to:
 				input(type="text", id="goToBoxText")
 				input(type="submit", onClick="goToIndex()", id="goToBoxSubmit", value='Go!')
 
 		.coverflow
-			- foreach(i;1 .. 101)
-				.cover(onClick="changeVideo('MV_3Dpw-BRY')",  onmouseover="hovercardData('Kavinssdkfsjdfhskdjfhskdjfhsdkjfhskdky', 'NightCall', 'BBC Top 40', #{i})")=i
+			- foreach(int i, SongEntry song; chart.songs)
+				.cover(onClick="changeVideo('#{song.youtubeid}')",  onmouseover="hovercardData('#{song.artist}', '#{song.songname}', '#{chart.name}', #{i+1})")=i+1
 
 	script(type="text/javascript", src="scripts/youtubePlayerControls.js")
 	script(type="text/javascript", src="scripts/jquery.interpolate.js")

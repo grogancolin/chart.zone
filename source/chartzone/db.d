@@ -118,7 +118,8 @@ public ChartEntry[] getLatestCharts(ChartzoneDB db){
 		try{
 			charts ~= db.getLatestChart(type);
 		} catch(NoEntryForChartException e){
-			logInfo(e.msg);
+			logInfo("Caught exception looking for chart: " ~ type ~ ". Moving on....");
+			logDebug(e.msg);
 			// no entry for that chart. Moving on
 			continue;
 		}
