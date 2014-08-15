@@ -154,7 +154,7 @@ public ChartEntry getChart_BBCTop40(){
 	}
 
 	//Create Playlist and get playlist Id
-	string playListId = createPlaylist("BBC Top 40".getChartTitleDate());
+	string playListId = "temp"; //createPlaylist("BBC Top 40".getChartTitleDate());
 
 	SongEntry[] songs;
 	string nameToSearch;
@@ -166,7 +166,7 @@ public ChartEntry getChart_BBCTop40(){
 		nameToSearch = nameToSearch.htmlEntitiesDecode;
 		videoId = searchFor(nameToSearch);
 		//Add song to playlist
-		addVideoToPlaylist(playListId, videoId);
+		//addVideoToPlaylist(playListId, videoId);
 		songs ~= SongEntry(
 			ele[1].innerHTML.htmlEntitiesDecode,
 			ele[0].innerHTML.htmlEntitiesDecode,
@@ -207,7 +207,7 @@ public ChartEntry getChart_BBCTop40Dance(){
 
 
 	//Create Playlist and get playlist Id
-	string playListId = createPlaylist("BBC Top 40 Dance".getChartTitleDate());
+	string playListId = "temp"; //createPlaylist("BBC Top 40 Dance".getChartTitleDate());
 
 	SongEntry[] songs;
 	string nameToSearch;
@@ -220,7 +220,7 @@ public ChartEntry getChart_BBCTop40Dance(){
 		nameToSearch = nameToSearch.htmlEntitiesDecode;
 		videoId = searchFor(nameToSearch);
 		//Add song to playlist
-		addVideoToPlaylist(playListId, videoId);
+		//addVideoToPlaylist(playListId, videoId);
 		songs ~= SongEntry(
 			ele[1].innerHTML.htmlEntitiesDecode,
 			ele[0].innerHTML.htmlEntitiesDecode,
@@ -261,7 +261,7 @@ public ChartEntry getChart_BillboardTop100(){
 	}
 
 	//Create Playlist and get playlist Id
-	string playListId = createPlaylist("Billboard Top 100".getChartTitleDate());
+	string playListId = "temp"; //createPlaylist("Billboard Top 100".getChartTitleDate());
 
 	SongEntry[] songs;
 	string nameToSearch;
@@ -297,7 +297,7 @@ public ChartEntry getChart_BillboardTop100(){
 			nameToSearch = nameToSearch.htmlEntitiesDecode;
 			videoId = searchFor(nameToSearch);
 			//Add song to playlist
-			addVideoToPlaylist(playListId, videoId);
+			//addVideoToPlaylist(playListId, videoId);
 
 			// writefln("%s: %s, %s", position, artist, songTitle);
 			// append a new song object to songs[]
@@ -334,7 +334,7 @@ public ChartEntry getChart_ItunesTop100(){
 			"Error parsing response from iTunes Top 100. Error: couldnt find at least one ul tag");
 
     //Create Playlist and get playlist Id
-	string playListId = createPlaylist("iTunes Top 100".getChartTitleDate());
+	string playListId = "temp"; //createPlaylist("iTunes Top 100".getChartTitleDate());
 
 	SongEntry[] songs;
 	string nameToSearch;
@@ -351,7 +351,7 @@ public ChartEntry getChart_ItunesTop100(){
 			nameToSearch = nameToSearch.htmlEntitiesDecode;
 			videoId = searchFor(nameToSearch);
 			//Add song to playlist
-			addVideoToPlaylist(playListId, videoId);
+			//addVideoToPlaylist(playListId, videoId);
             songs ~= SongEntry(
 					songTitle.htmlEntitiesDecode,
 					artist.htmlEntitiesDecode,
