@@ -1,0 +1,33 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="public\styles\style.css">
+    <Files>
+      <File FileName="source\app.d" Line="2" Column="2" />
+      <File FileName="views\chartlist.dt" Line="1" Column="1" />
+      <File FileName="views\music.dt" Line="72" Column="72" />
+      <File FileName="source\chartzone\youtube.d" Line="23" Column="23" />
+      <File FileName="views\contact.dt" Line="58" Column="58" />
+      <File FileName="views\layout.dt" Line="3" Column="3" />
+      <File FileName="public\styles\style.css" Line="17" Column="17" />
+      <File FileName="public\scripts\contactForm.js" Line="3" Column="3" />
+      <File FileName="public\scripts\coverflow.controls.js" Line="2" Column="2" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.chartzone>
+    <MonoDevelop.Ide.CustomExecutionModes>
+      <Data Name="Server" Id="f11b9501-1318-4f6e-b533-87d3593e3f77" ModeId="Default">
+        <CommandData>
+          <Item Key="MonoDevelop.Ide.Execution.CustomArgsCustomizer">
+            <Value Arguments="-- server" ctype="CustomArgsExecutionModeData">
+              <EnvironmentVariables />
+            </Value>
+          </Item>
+        </CommandData>
+      </Data>
+    </MonoDevelop.Ide.CustomExecutionModes>
+  </MonoDevelop.Ide.ItemProperties.chartzone>
+</Properties>

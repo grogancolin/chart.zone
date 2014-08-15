@@ -9,3 +9,25 @@ block body
 			h1 Contact Us
 	#outerWrapper
 		#innerWrapper
+			#contact-form
+				h1 Fill out form below to contact us. We will try to respond to your query asap!
+				ul#errors
+					li#info There were problems with the form.
+				p#success Thanks! We'll try to response asap...
+				form(id="contactForm", name="contactForm")
+					label(for="name") Name: 
+						span.required *
+					input#name.name(type="text", value="", placeholder="Name...", required="required", autofocus="autofocus")
+					label(for="email") Email Address: 
+						span.required *
+					input#email.email(type="text", value="", placeholder="email@address.com", required="required")
+					label(for="message") Message:
+					textarea#message.message(name="message", placeholder="Enter your message of praise here...", required="required", data-minlength="20")
+					p#req-field-desc
+						span.required *
+						|Any items with a * are required
+						input#submit-button.submit-button(type="submit", value="Submit Message")
+
+
+
+	script(type="text/javascript", src="scripts/contactForm.js")

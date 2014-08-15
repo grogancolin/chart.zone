@@ -37,10 +37,11 @@ block body
 					-foreach(int j, ChartEntry val; row)
 						div(class="column#{j+1}")
 							a(href="?chartname=#{val.name}", title="#{val.name}")
-								div(class="box.#{val.country.toLower}")
-									p #{val.name}
-										br
-										|(#{val.country.toUpper})
+								.box
+									div(class="#{val.country.toLower}")
+										p #{val.name}
+											br
+											|(#{val.country.toUpper})
 
 			#moviesList(style="display:none;")
 				.column1

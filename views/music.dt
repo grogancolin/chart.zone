@@ -18,7 +18,7 @@ block body
 		.button#static
 			a(href="#", onClick="playOrder('static')", title="Stay on page when video finishes")
 				.pause
-					&#9616;&#9616;
+					//-&#9616;&#9616;
 		.button#shuffle
 			a(href="#", onClick="playOrder('shuffle')", title="Shuffle Playing Order")
 				img(src="../images/shuffle.png", alt="Shuffle Playing Order", title="Shuffle Playing Order")

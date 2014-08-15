@@ -159,7 +159,7 @@ public ChartEntry getChart_BBCTop40(){
 			);
 	}
 	return ChartEntry(
-			"BBCTop40", songs
+			"BBCTop40", "uk", songs
 		);
 
 }
@@ -200,7 +200,7 @@ public ChartEntry getChart_BBCTop40Dance(){
 			);
 	}
 	return ChartEntry(
-		"BBCTop40Dance", songs
+		"BBCTop40Dance", "uk", songs
 		);
 }
 
@@ -270,7 +270,7 @@ public ChartEntry getChart_BillboardTop100(){
 		}
 	}
 
-	return ChartEntry("BillboardTop100", songs);
+	return ChartEntry("BillboardTop100", "usa", songs);
 }
 
 /**
@@ -333,7 +333,7 @@ public ChartEntry getChart_ItunesTop100(){
     };
     html.parse();
 
-	return ChartEntry("ItunesTop100", songs);
+	return ChartEntry("ItunesTop100", "global", songs);
 }
 
 public string getDataFromURL(string url){

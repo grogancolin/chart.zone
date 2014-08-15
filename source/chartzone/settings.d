@@ -20,7 +20,8 @@ public class ChartzoneSettings{
         dbCollections = 
             [ "charts" : "charts", 
               "youtube" : "youtube", 
-              "youtubeCredentials" : "youtubeCredentials" 
+              "youtubeCredentials" : "youtubeCredentials",
+			  "messages" : "messages"
             ];
 
     }

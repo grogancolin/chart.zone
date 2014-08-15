@@ -17,7 +17,7 @@ import chartzone.settings;
  * Global data
  * */
 public ChartzoneDB db;
-public string settingsFile = "server.json";
+public static string settingsFile = "server.json";
 
 auto doc = "chartzone
 
@@ -52,8 +52,8 @@ public void main(string[] args){
     }
 
     auto cli = docopt.docopt(doc, args[1..$], true, "0.01alpha");
-    writefln("%s", typeof(cli).stringof);
-    writefln("%s", cli);
+	settingsFile = cli["--settings"].toString;
+    debug writefln("%s", cli);
 
     if(cli["update"].toString.to!bool){
         // go ahead and call the updater lib
@@ -85,6 +85,7 @@ public void main(string[] args){
 		router.get("/", &chartlist);
         router.get("/about", &about);
         router.get("/contact", &contact);
+		router.post("/process-contact-form", &processContactForm);
         router.get("*", serveStaticFiles("public/"));
 
         db = new ChartzoneDB(
@@ -148,4 +149,13 @@ void about(HTTPServerRequest req, HTTPServerResponse res)
 void contact(HTTPServerRequest req, HTTPServerResponse res)
 {
     res.renderCompat!("contact.dt")();
+}
+
+void processContactForm(HTTPServerRequest req, HTTPServerResponse res){
+	writefln("Recieved contact form: \n\tName -> %s\n\tEmail ->%s\n\tMessage ->%s", 
+	         req.form["name"], req.form["email"], req.form["message"]);
+
+	MessageEntry msg = MessageEntry(req.form["name"], req.form["email"], req.form["message"]);
+	db.addMessage(msg);
+	res.writeBody("Success!");
 }

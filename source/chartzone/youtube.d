@@ -74,16 +74,12 @@ shared static this(){
 
 	auto data = db.collection.find().sort(["timestamp" : -1]);
 	if(data.empty){
-		debug writefln("Nothing in DB, enterying a new one youtube entry in %s.%s", "chartzone", "youtube");
 		youtubeToken = getRefreshToken;
 		db.collection.insert(youtubeToken);
 		return;
 	}
 	auto bsonObj = data.front;
-	writefln("%s", bsonObj);
 	youtubeToken.deserializeBson(bsonObj);
-
-	debug writefln("From DB: %s", youtubeToken);
 }
 
 /**
@@ -92,7 +88,7 @@ shared static this(){
 public void checkAndUpdateYoutubeToken(){
 	// connect to db
 	auto db = new YoutubeDB("chartzone", "youtube");
-	writefln("Checking if token is expired: %s", youtubeToken.isExpired);
+	//writefln("Checking if token is expired: %s", youtubeToken.isExpired);
 	if(youtubeToken.isExpired){
         debug writefln("Token is expired. Getting a new one: %s", youtubeToken);
 		YoutubeToken oldTok = youtubeToken;
@@ -166,9 +162,7 @@ public Json searchFor(string name, string orderBy="relevance"){
             "$PUBLIC_API_KEY$" : credentials.publicApiKey]).
 		encode;
     //	debug writefln("Sending ----\n%s\n---- to youtube;", url);
-	writefln("Search URL: %s", url);
 	auto response = requestHTTP(url, (scope req){}).bodyReader.readAllUTF8;
-	debug writefln("---\nGot: %s\nfrom youtube\n---;", response);
 	return response.parseJsonString;
 }
 

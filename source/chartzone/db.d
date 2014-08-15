@@ -5,7 +5,9 @@ module chartzone.db;
 
 import std.stdio;
 
+import chartzone.main : settingsFile;
 import chartzone.datafetchers;
+import chartzone.settings;
 
 import vibe.vibe;
 /**
@@ -16,11 +18,13 @@ private:
 	MongoClient _client;
 	MongoDatabase _db;
 	MongoCollection _collection;
+	private string[string] _all_collections;
 public:
 	public this(string dbstr, string collstr){
 		_client = connectMongoDB("127.0.0.1");
 		_db = client.getDatabase(dbstr);
 		_collection = db[collstr];
+		_all_collections = parseSettingsFile(settingsFile).dbCollections;
 	}
 
 	/*
@@ -89,7 +93,10 @@ public void update(ChartzoneDB db, string oldName, ulong oldTimestamp, ChartEntr
 	db.collection.update(["name" : Bson(oldName), "date" : Bson(oldTimestamp)], newentry, UpdateFlags.None);
 }
 
-
+public void addMessage(ChartzoneDB db, MessageEntry msg){
+	writefln("%s", db._all_collections);
+	db._db[db._all_collections["messages"]].insert(msg);
+}
 /**
  Gets a ChartEntry[] containing all the ChartEntries in the DB
 */
@@ -156,7 +163,7 @@ public struct GenreEntry{
 */
 public struct ChartEntry {
 	string name;
-	string country;
+	string country="global";
 	long date;
 	SongEntry[] songs;
 
@@ -166,6 +173,13 @@ public struct ChartEntry {
 	public this(string name, SongEntry[] songs){
 		import std.datetime;
 		this(name, Clock.currStdTime(), songs);
+	}
+	/**
+		Constructs the chart entry using the current system date/time as the date
+	*/
+	public this(string name, string country, SongEntry[] songs){
+		import std.datetime;
+		this(name, Clock.currStdTime(), country, songs);
 	}
 
 	/**
@@ -187,6 +201,22 @@ public struct ChartEntry {
 	}
 }
 
+/**
+ * Data structure that holds message information from a user in DB
+ * */
+public struct MessageEntry {
+	string name;
+	string email;
+	long date;
+	string message;
+
+	public this(string name, string email, string message){
+		this.name = name;
+		this.email = email;
+		this.message = message;
+		this.date = Clock.currStdTime();
+	}
+}
 
 public class DBSearchException : Exception{
 	this(string message, string file = __FILE__, size_t line = __LINE__, Throwable next = null) {
