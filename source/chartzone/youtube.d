@@ -158,7 +158,7 @@ public string searchFor(string name){
     string orderBy="relevance";
     string type="video";
 
-    logInfo("In youtube.d search for");
+//    logInfo("In youtube.d search for");
 
 	// construct the url to send
 	string url = "https://www.googleapis.com/youtube/v3/search?part=id&order=$ORDERBY$&q=$SEARCHFOR$&regionCode=$regionCode$&type=$TYPE$&key=$PUBLIC_API_KEY$"
@@ -169,10 +169,9 @@ public string searchFor(string name){
             "$TYPE$" : type,
             "$PUBLIC_API_KEY$" : credentials.publicApiKey]).
 		encode;
-    //	debug writefln("Sending ----\n%s\n---- to youtube;", url);
-	writefln("Search URL: %s", url);
+
 	auto response = parseJsonString(requestHTTP(url, (scope req){}).bodyReader.readAllUTF8);
-	debug writefln("---\nGot: %s\nfrom youtube\n---;", response);
+
 	//return response.parseJsonString;
     //^^^^^Above can be used later when/if we find a better way of picking the correct song
     //Untill the just return the top song in the lists ID
