@@ -153,7 +153,7 @@ Think Symetry for this or it will look terrible
     overflow:hidden;
     margin-bottom: 30px;
     border: 1px solid black;
-    height: 115px;
+    height: 130px;
     border-radius: 20px;
     background:white;
     background-position:center;
@@ -198,7 +198,9 @@ Think Symetry for this or it will look terrible
 .usa{
     background:url('../images/usaflag.jpg');
     background-position:center;
-    color:;
+
+    height: 100%;
+    position:relative;
 }
 
 /*****************
@@ -208,6 +210,10 @@ Think Symetry for this or it will look terrible
 .uk{
     background:url('../images/ukflag.jpg');
     background-position:center;
+
+    height: 100%;
+    position:relative;
+
 }
 
 /*****************
@@ -217,6 +223,10 @@ Think Symetry for this or it will look terrible
 .ireland{
     background:url('../images/irelandflag.jpg');
     background-position:center;
+
+    height: 100%;
+    position:relative;
+
 }
 
 /*****************
@@ -226,6 +236,9 @@ Think Symetry for this or it will look terrible
 .germany{
     background:url('../images/germanflag.png');
     background-position:center;
+
+    height: 100%;
+    position:relative;
 }
 
 /*****************
@@ -235,6 +248,8 @@ Think Symetry for this or it will look terrible
 .euro{
     background:url('../images/euflag.jpg');
     background-position:center;
+    height: 100%;
+    position:relative;
 }
 
 /*****************
@@ -244,6 +259,8 @@ Think Symetry for this or it will look terrible
 .canada{
     background:url('../images/canadaflag.jpg');
     background-position:center;
+    height: 100%;
+    position:relative;
 }
 
 /*****************
@@ -253,6 +270,8 @@ Think Symetry for this or it will look terrible
 .global{
     background:url('../images/globe.jpg');
     background-position:center;
+    height: 100%;
+    position:relative;
 }
 
 
