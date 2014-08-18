@@ -28,28 +28,42 @@ public class ChartzoneSettings{
 
     public void parseSettings(Json j){
 
-        if(auto d = "hostname" in j) hostname = d.get!string;
-        if(auto d = "port" in j) port = cast(ushort)d.get!long;
-        if(auto d = "dbName" in j) dbName = d.get!string;
+		if(auto d = "hostname" in j) { 
+			logDebug("Read hostname as %s", d.get!string);
+			hostname = d.get!string; 
+		}
+		if(auto d = "port" in j) {
+			logDebug("Read port as %s", d.get!long);
+			port = cast(ushort)d.get!long; 
+		}
+		if(auto d = "dbName" in j) {
+			logDebug("Read dbName as %s", d.get!string);
+			dbName = d.get!string;
+		}
         if(auto arr = "dbCollections" in j){
+			//logDebug("Read dbCollections as %s", arr);
             foreach(obj; *arr){
-                if(obj["name"].get!string in dbCollections)
+                if(obj["name"].get!string in dbCollections){
+					logDebug("Updating dbCollections: %s=%s", obj["name"].get!string, obj["value"].get!string);
                     dbCollections[obj["name"].get!string] = obj["value"].get!string;
+				} else {
+					logDebug("Discarding: %s=%s", obj["name"].get!string, obj["value"].get!string);
+				}
             }
         }
+		logInfo("Settings: %s", serializeToJson(this));
     }
 }
 
 ChartzoneSettings parseSettingsFile(string file){
+	logInfo("parseSettingsFile - Parsing settings file: %s", file);
     ChartzoneSettings settings = new ChartzoneSettings();
     if(existsFile(file)){
         //read file as json
         auto data = stripUTF8Bom(cast(string)openFile(file).readAll());
         auto json = parseJson(data);
+		logInfo("parseSettingsFile - Json for parsing: %s", json);
         settings.parseSettings(json);
-        debug(chartzoneSettings){
-            writefln("DEBUG : Chartzone settings: \n%s", serializeToJson(settings));
-        }
     }
     return settings;
 }

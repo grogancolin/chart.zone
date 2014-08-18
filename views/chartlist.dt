@@ -1,19 +1,12 @@
 extends layout
 block body
 	- import chartzone.db;
+	- import chartzone.chartzone;
 	- import std.datetime;
 	- import std.string : toUpper, toLower;
+	- import vibe.core.log;
+	- import std.algorithm : map;
 
-	- ChartEntry[][] createChartTable(ChartEntry[] list, int rowLength)
-		- ChartEntry[][] table;
-		- while(list.length > 0)
-			- if(list.length < rowLength)
-				- table ~= list;
-				- break;
-			- else
-				- table ~= list[0..rowLength];
-				- list = list[rowLength..$];
-		- return table;
 
 	#header
 		a(href="/")
@@ -31,7 +24,7 @@ block body
 				label(for="movieSoundtracks", onClick="changeList('movies')")Movie Soundtracks
 				//- NEEDED FOR TOGGLE STYLING FOR SOME REASON
 				a()
-			- auto table = createChartTable(charts, 3);
+			- auto table = createChartTable(charts);
 			- foreach(int i, ChartEntry[] row; table)
 				#musicList
 					-foreach(int j, ChartEntry val; row)

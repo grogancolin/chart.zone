@@ -17,7 +17,8 @@ unittest{
 		"test" : "trial"]) == "Substitution directions trial");
 }
 
-public string getChartTitleDate (string title){
+
+public string getYoutubePlaylistTitle(string title){
 
 	title = format("%s, Day: %s, Week: %s, Year: %s",
                          title,

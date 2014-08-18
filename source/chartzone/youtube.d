@@ -1,32 +1,31 @@
 module chartzone.youtube;
 
 import chartzone.utils;
-import mainMod = chartzone.main;
 import chartzone.settings;
+import chartzone.utils;
+import chartzone.db;
 
 import vibe.vibe;
 import std.string;
 import std.array : replace;
 import std.uri : encode;
-/**
-	Module provides functions to talk to the youtube data api
-*/
 import std.stdio;
 
-//private enum RefreshToken = "1/v4UeHKbO5ucVxE1jtKjphc3mUK9UGqaegJF2xS6C4Dg";
-//private enum ClientID = "1018084892284-tbe2rk62ri4jcs8arjlp6escslqlafl8.apps.googleusercontent.com";
-//private enum ClientSecret = "daz7Em_mx7FsqlBGOnHIwjCO";
+/**
+ * Module provides functions to talk to the youtube data api
+ */
+
 private YoutubeCredentials credentials;
 private static YoutubeToken youtubeToken;
+private ChartzoneSettings chartzoneSettings;
 
 /**
-* Module constructor to setup the global variables at startup time
+* Module constructor to setup the global variables at startup time - called by main 
 */
-shared static this(){
+public void setupYoutubeModule(string settingsFile){
 
     // read the settings file
-    auto chartzoneSettings = new ChartzoneSettings();
-    chartzoneSettings = parseSettingsFile(mainMod.settingsFile);
+    chartzoneSettings = parseSettingsFile(settingsFile);
 
 	// get the youtube token from the DB.
 	auto db = new YoutubeDB(chartzoneSettings.dbName, chartzoneSettings.dbCollections["youtube"]);
@@ -87,7 +86,7 @@ shared static this(){
  */
 public void checkAndUpdateYoutubeToken(){
 	// connect to db
-	auto db = new YoutubeDB("chartzone", "youtube");
+	auto db = new YoutubeDB(chartzoneSettings.dbName, chartzoneSettings.dbCollections["youtube"]);
 	//writefln("Checking if token is expired: %s", youtubeToken.isExpired);
 	if(youtubeToken.isExpired){
         debug writefln("Token is expired. Getting a new one: %s", youtubeToken);
@@ -119,7 +118,8 @@ public YoutubeToken getRefreshToken(){
                 ]
             );
 
-    writefln("Getting new refresh token with URL: %s and postBody: %s", url, postBody);
+    logInfo("Getting new refresh token with URL: %s and postBody: %s", url, postBody);
+
     auto response = requestHTTP(url,
         (scope req){
             req.method = HTTPMethod.POST;
@@ -135,30 +135,28 @@ public YoutubeToken getRefreshToken(){
  * Update youtube credentials
  */
 public void updateYoutubeCredentials(YoutubeCredentials old, YoutubeCredentials newCredentials){
-    auto db = new YoutubeDB("chartzone", "youtubestatic");
+	auto db = new YoutubeDB(chartzoneSettings.dbName, chartzoneSettings.dbCollections["youtubeCredentials"]);
     db.collection.update(
         [   "refreshToken" : Bson(old.refreshToken),
             "clientID" : Bson(old.clientID),
-            "clientSecret" : Bson(old.clientSecret)],
+            "clientSecret" : Bson(old.clientSecret)
+		],
             newCredentials, UpdateFlags.None);
 
     YoutubeCredentials testObj;
     testObj.deserializeBson(db.collection.find().front);
-    assert(newCredentials == testObj, "Error: Couldnt update new credentials correctly.");
+	if(newCredentials == testObj){
+		logError("Couldnt update youtube credentials. Quitting.");
+		throw new Exception("Couldnt update youtube credentials...");
+	}
     credentials = testObj;
 }
 
 /**
  * Returns a JSON object containing the result from youtube.
  */
-public string searchFor(string name){
-
-    //These can be added as params later if needed
-    string regionCode="ie";
-    string orderBy="relevance";
-    string type="video";
-
-//    logInfo("In youtube.d search for");
+public string searchFor(string name, string regionCode="ie", string orderBy="relevance", string type="videO"){
+	logInfo("Searching youtube for: %s", name);
 
 	// construct the url to send
 	string url = "https://www.googleapis.com/youtube/v3/search?part=id&order=$ORDERBY$&q=$SEARCHFOR$&regionCode=$regionCode$&type=$TYPE$&key=$PUBLIC_API_KEY$"
@@ -170,6 +168,7 @@ public string searchFor(string name){
             "$PUBLIC_API_KEY$" : credentials.publicApiKey]).
 		encode;
 
+	logDebug("Youtube search URL: %s", url);
 	auto response = parseJsonString(requestHTTP(url, (scope req){}).bodyReader.readAllUTF8);
 
 	//return response.parseJsonString;
@@ -202,11 +201,13 @@ public Json addVideoToPlaylist(string playlistId, string videoId){
     obj.status.privacyStatus = "public";
     obj.kind = "youtube#playlistItem";
 
+	logDebug("addVideoToPlaylist payload: %s", obj);
     auto response = requestHTTP(url, (scope req){
-        req.method = HTTPMethod.POST;
-        req.writeJsonBody(obj);
+	        req.method = HTTPMethod.POST;
+	        req.writeJsonBody(obj);
         }).bodyReader.readAllUTF8;
-    logInfo("%s", response.parseJsonString );
+
+    logDebug("addVideoToPlaylist; Response: %s", response.parseJsonString );
     return response.parseJsonString;
 }
 
@@ -215,12 +216,13 @@ public Json addVideoToPlaylist(string playlistId, string videoId){
 */
 public string createPlaylist(string playlistName){
 
+	logDebug("Creating playlist with name: %s", playlistName);
     checkAndUpdateYoutubeToken();
     string url = "https://www.googleapis.com/youtube/v3/playlists?part=$PART$&access_token=$ACCESS_TOKEN$"
         .replaceMap(["$PART$" : "snippet,status",
                      "$ACCESS_TOKEN$" : youtubeToken.access_token]);
 
-    writefln("Creating playlist with url: %s", url);
+    logInfo("Creating playlist with url: %s", url);
     auto response = requestHTTP(url, (scope req){
             req.method = HTTPMethod.POST;
             req.writeJsonBody(["snippet": ["title" : playlistName], "status" : ["privacyStatus" : "public"]]);
@@ -228,7 +230,7 @@ public string createPlaylist(string playlistName){
 
     //Return the new playlists ID as string
     string playListId = response.parseJsonString.id.to!string;
-    logInfo("%s", playListId);
+    logInfo("Playlist name, Playlist Id : %s, %s", playlistName, playListId);
 
     //ERROR CHECKING NEEDS TO BE DONE
     /*if(playListId.length > 0){
@@ -238,6 +240,25 @@ public string createPlaylist(string playlistName){
 
     return playListId;
 }
+
+/**
+ * Creates a playlist from a ChartEntry object
+ * */
+public string createPlaylist(ChartEntry chart){
+	logInfo("Creating new playlist with chart: %s", chart.name);
+	string playlistId = createPlaylist(chart.name.getYoutubePlaylistTitle);
+	foreach(song; chart.songs){
+		if(song.youtubeid == "unknown-id"){
+			logInfo("Creating playlist -> Skipping: %s", song.songname);
+			continue;
+		}
+		logDebug("Creating playlist -> Adding: %s", song.songname);
+		playlistId.addVideoToPlaylist(song.youtubeid);
+	}
+	return playlistId;
+
+}
+
 /*
  *  Data structure that holds information on youtube api token
  */
@@ -258,12 +279,11 @@ public struct YoutubeToken{
     }
 
     @property bool isExpired(){
-	long currTime = Clock.currStdTime().stdTimeToUnixTime();
-	if(currTime < (this.timestamp + this.expires_in)){
-		return false;
-	}
-	return true;
-//        return (this.timestamp + expires_in) < Clock.currStdTime().stdTimeToUnixTime;
+		long currTime = Clock.currStdTime().stdTimeToUnixTime();
+		if(currTime < (this.timestamp + this.expires_in)){
+			return false;
+		}
+		return true;
     }
 }
 

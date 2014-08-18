@@ -1,2 +1,4 @@
 .dub
 *.userprefs
+chartzone_*.log
+chartzone_*.html

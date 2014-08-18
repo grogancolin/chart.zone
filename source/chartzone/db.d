@@ -5,7 +5,7 @@ module chartzone.db;
 
 import std.stdio;
 
-import chartzone.main : settingsFile;
+//import chartzone.main : settingsFile;
 import chartzone.datafetchers;
 import chartzone.settings;
 
@@ -24,7 +24,7 @@ public:
 		_client = connectMongoDB("127.0.0.1");
 		_db = client.getDatabase(dbstr);
 		_collection = db[collstr];
-		_all_collections = parseSettingsFile(settingsFile).dbCollections;
+		//_all_collections = parseSettingsFile(settingsFile).dbCollections;
 	}
 
 	/*
@@ -101,6 +101,7 @@ public void addMessage(ChartzoneDB db, MessageEntry msg){
  Gets a ChartEntry[] containing all the ChartEntries in the DB
 */
 public ChartEntry[] getAllCharts(ChartzoneDB db){
+	logDebug("Getting all charts...");
 	ChartEntry[] charts;
 	auto cursor = db.collection.find().sort(["date" : -1]); // get all the chart entries
 	foreach(doc; cursor){
@@ -108,11 +109,12 @@ public ChartEntry[] getAllCharts(ChartzoneDB db){
 		chart.deserializeBson(doc);
 		charts ~= chart;
 	}
+	logDebug("Returning %s charts", charts.length);
 	return charts;
 }
 
 public ChartEntry[] getLatestCharts(ChartzoneDB db){
-
+	logDebug("Getting latest charts...");
 	ChartEntry[] charts;
     foreach(type; chartTypes){
 		try{
@@ -124,19 +126,27 @@ public ChartEntry[] getLatestCharts(ChartzoneDB db){
 			continue;
 		}
     }
-    if(charts.length == 0)
+    if(charts.length == 0){
+		logError("No charts in DB");
     	throw new DBSearchException("Error finding charts");
-    else
+	}
+    else{
+		logDebug("Returning %s charts", charts.length);
 		return charts;
+	}
 }
 
 
 public ChartEntry getLatestChart(ChartzoneDB db, string chartName){
+	logDebug("Getting latest chart: %s", chartName);
 	ChartEntry chart;
 	auto cursor = db.collection.find(["name" : chartName]).sort(["date" : -1]);
-	if(cursor.empty)
+	if(cursor.empty){
+		logError("Chart %s not in DB", chartName);
 		throw new NoEntryForChartException("Nothing for chart %s was found in DB".format(chartName));
+	}
 	deserializeBson(chart, cursor.front);
+	logDebug("Returning chart", chartName);
 	return chart;
 }
 

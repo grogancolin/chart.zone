@@ -4,7 +4,7 @@ doctype html
 html
 	head
 		title Chartzone
-		link(rel="icon", type="image/x-icon", href='images/favicon.ico')
+		link(rel="icon", type="image/x-icon", href="images/favicon.ico")
 		- css("style");
 		- css("toggleSwitch");
 		script(src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js")

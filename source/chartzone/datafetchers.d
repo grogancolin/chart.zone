@@ -18,19 +18,16 @@ import std.uri;
 import std.algorithm;
 import std.utf;
 
-/**
-  * This enum will be something like:
-  * enum Chart : ChartMapper{
-  *     ChartName = ChartMapper("ChartName", &getChart_ChartName),
-  *     ...
-  * }
-  * makeEnum() scans the chartzone.datafetchers module for any functions beginning with
-  * "getChart_", and adds that funciton to the enum for retrieval later.
-  */
-//mixin(makeEnum());
-public ChartEntry function()[string] chartGetters;
+/+
+  The code below sets up the module.
+ +/
 
-public string[] chartTypes;
+/**
+ * A hash of ChartNames to functionPointers
+ * */
+public ChartEntry function()[string] chartGetters;
+/// Used for identifying all valid charts. Is set to the keys of chartGetters.
+string[] chartTypes;
 
 string mapFuncNamesToAA(string funcId){
         auto funNames = [__traits(allMembers, chartzone.datafetchers)]
@@ -48,73 +45,10 @@ string mapFuncNamesToAA(string funcId){
 shared static this(){
     mixin("chartGetters = [" ~ mapFuncNamesToAA("getChart_") ~ "];");
     chartTypes = chartGetters.keys;
-}
-/+
-/**
-* Calls the ChartMappers function pointer, and returns the ChartEntry
-*/
-public ChartEntry callChart(Chart type){
-    return type();
+	logInfo("After setting up datafetchers.d module. Available ChartGetter function names: %s", chartTypes);
 }
 
-    /**
-    * Calls the ChartMappers function pointer, but only if the string passed exists.
-    */
-public ChartEntry callChart(string type){
-    //decide what type of chart (if any) is represented by type
-    mixin(makeSwitch!("type"));
-}+/
 
-/**
-* Makes an enum string that contains all the functions in module mod with names
-* starting with getChart
-*/
-private string makeEnum(){
-    auto getChartFunctions = [__traits(allMembers, chartzone.datafetchers)].
-        filter!(a => (a.startsWith("getChart_")));
-    string toRet = "public enum Chart: ChartMapper {\n";
-    foreach(item; getChartFunctions){
-        toRet ~= "$NAME$ = ChartMapper(\"$NAME$\", &$FUNC_NAME$),\n".
-            replaceMap(["$NAME$" : item[9..$], "$FUNC_NAME$" : item]);
-    }
-    toRet = toRet[0..$-2] ~ "\n}";
-    return toRet;
-}
-
-private string makeSwitch(alias var)(){
-    auto chartTypes = [__traits(allMembers, Chart)];
-    string toRet = "switch("~var~"){\n";
-    foreach(type; chartTypes){
-    toRet ~= "\tcase \"$TYPE_STRING$\": return __traits(getMember, Chart, \"$TYPE_STRING$\")();\n"
-        .replaceMap( [
-					"$TYPE_STRING$" : type,
-					"$TYPE_FUNC$" : type
-				]);
-	}
-	toRet ~= "\tdefault: throw new ChartFetcherException(\"ERROR in searching for chart type: \"~ $VAR$);\n"
-		.replaceMap( [ "$VAR$" : var] );
-	toRet ~= "}";
-	return toRet;
-}
-
-private struct ChartMapper{
-    string name;
-    ChartEntry function() fp;
-
-    this(string name, ChartEntry function() fp){
-        this.name = name;
-        this.fp = fp;
-    }
-
-    string toString()
-    {
-        return this.name;
-    }
-
-    ChartEntry opCall(){
-        return this.fp();
-    }
-}
 /**
 	Exception for Chartzone data fetchers.
 */
@@ -138,7 +72,8 @@ public class ChartFetcherException : Exception{
 public ChartEntry getChart_BBCTop40(){
 	logInfo("In datafetchers.d getBBCTOP40");
 	// read from BBC
-	string bbcTop40 = getDataFromURL("http://www.bbc.co.uk/radio1/chart/singles");
+	string url = "http://www.bbc.co.uk/radio1/chart/singles";
+	string bbcTop40 = getDataFromURL(url);
 
 	Document htmlObj = new Document();
 	htmlObj.parse(bbcTop40);
@@ -147,14 +82,13 @@ public ChartEntry getChart_BBCTop40(){
 
 	// ensure we have equal numbers
 	if(artistListing.length == 0 || trackListing.length == 0){
-		throw new ChartFetcherException("Received no 'div[class=\"cht-entry-artist\"]' tags from http://www.bbc.co.uk/radio1/chart/singles");
+		logInfo("Invalid info from %s", url);
+		throw new ChartFetcherException("Received no 'div[class=\"cht-entry-artist\"]' tags from " ~ url);
 	}
 	if(artistListing.length != trackListing.length){
-		throw new ChartFetcherException("Error parsing information from http://www.bbc.co.uk/radio1/chart/singles");
+		logInfo("Invalid info from %s", url);
+		throw new ChartFetcherException("Error parsing information from " ~ url);
 	}
-
-	//Create Playlist and get playlist Id
-	string playListId = "temp"; //createPlaylist("BBC Top 40".getChartTitleDate());
 
 	SongEntry[] songs;
 	string nameToSearch;
@@ -177,7 +111,7 @@ public ChartEntry getChart_BBCTop40(){
 	}
 
 	return ChartEntry(
-			"BBCTop40", "uk", playListId,  songs
+			"BBCTop40", "uk", "none",  songs
 		);
 
 }
@@ -206,8 +140,6 @@ public ChartEntry getChart_BBCTop40Dance(){
 	}
 
 
-	//Create Playlist and get playlist Id
-	string playListId = "temp"; //createPlaylist("BBC Top 40 Dance".getChartTitleDate());
 
 	SongEntry[] songs;
 	string nameToSearch;
@@ -219,8 +151,7 @@ public ChartEntry getChart_BBCTop40Dance(){
 		nameToSearch = format("%s %s", ele[1].innerHTML.decode(), ele[0].innerHTML.decode());
 		nameToSearch = nameToSearch.htmlEntitiesDecode;
 		videoId = searchFor(nameToSearch);
-		//Add song to playlist
-		//addVideoToPlaylist(playListId, videoId);
+
 		songs ~= SongEntry(
 			ele[1].innerHTML.htmlEntitiesDecode,
 			ele[0].innerHTML.htmlEntitiesDecode,
@@ -230,7 +161,7 @@ public ChartEntry getChart_BBCTop40Dance(){
 			);
 	}
 	return ChartEntry(
-		"BBCTop40Dance", "uk", playListId,  songs
+		"BBCTop40Dance", "uk", "none",  songs
 		);
 }
 
@@ -252,7 +183,6 @@ public ChartEntry getChart_BBCTop40Dance(){
      +/
 */
 public ChartEntry getChart_BillboardTop100(){
-	import arsd.dom;
 
 	string[] urls;
 	urls ~= "http://www.billboard.com/charts/hot-100";
@@ -296,8 +226,6 @@ public ChartEntry getChart_BillboardTop100(){
 			nameToSearch = format("%s %s", songTitle, artist);
 			nameToSearch = nameToSearch.htmlEntitiesDecode;
 			videoId = searchFor(nameToSearch);
-			//Add song to playlist
-			//addVideoToPlaylist(playListId, videoId);
 
 			// writefln("%s: %s, %s", position, artist, songTitle);
 			// append a new song object to songs[]
@@ -311,7 +239,7 @@ public ChartEntry getChart_BillboardTop100(){
 		}
 	}
 
-	return ChartEntry("BillboardTop100", "usa", playListId,  songs);
+	return ChartEntry("BillboardTop100", "usa", "none",  songs);
 
 }
 
@@ -320,7 +248,7 @@ public ChartEntry getChart_BillboardTop100(){
 */
 
 public ChartEntry getChart_ItunesTop100(){
-	import arsd.dom;
+
     string iTunesTop100 = getDataFromURL("http://www.apple.com/itunes/charts/songs/");
 
     //Replace all img tags as some are badly formed on Apple site
@@ -332,10 +260,7 @@ public ChartEntry getChart_ItunesTop100(){
 	auto chartListing = htmlObj.getElementsByTagName(`ul`);
 	assert(chartListing.length >= 1,
 			"Error parsing response from iTunes Top 100. Error: couldnt find at least one ul tag");
-
-    //Create Playlist and get playlist Id
-	string playListId = "temp"; //createPlaylist("iTunes Top 100".getChartTitleDate());
-
+	       
 	SongEntry[] songs;
 	string nameToSearch;
 	string videoId;
@@ -350,19 +275,18 @@ public ChartEntry getChart_ItunesTop100(){
         	nameToSearch = format("%s %s", songTitle, artist);
 			nameToSearch = nameToSearch.htmlEntitiesDecode;
 			videoId = searchFor(nameToSearch);
-			//Add song to playlist
-			//addVideoToPlaylist(playListId, videoId);
+
             songs ~= SongEntry(
 					songTitle.htmlEntitiesDecode,
 					artist.htmlEntitiesDecode,
 					videoId,
 					i++,
-				["ItunesTop100", "pop"]
+					["ItunesTop100", "pop"]
 				);
          }
     }
 
-	return ChartEntry("ItunesTop100", "global", playListId,  songs);
+	return ChartEntry("ItunesTop100", "global", "none",  songs);
 
 }
 
