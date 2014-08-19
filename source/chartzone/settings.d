@@ -18,10 +18,10 @@ public class ChartzoneSettings{
         port = 8080;
         dbName = "chartzone";
         dbCollections = 
-            [ "charts" : "charts", 
-              "youtube" : "youtube", 
-              "youtubeCredentials" : "youtubeCredentials",
-			  "messages" : "messages"
+            [ "charts" 				: "charts", 
+              "youtube" 			: "youtube", 
+              "youtubeCredentials" 	: "youtubeCredentials",
+			  "messages" 			: "messages"
             ];
 
     }

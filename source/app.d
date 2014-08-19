@@ -109,17 +109,18 @@ public void main(string[] args){
 		}
 
 		// Update the youtube ID's for each song, later add whatever functions are needed to get other video services
-		foreach(chart; successCharts){
+		foreach(ref chart; successCharts){
 			logInfo("Searching for chart: %s", chart.name);
-			foreach(song; chart.songs){
-				logDebug("Youtube search: %s %s", song.songname, song.artist);
-				song.youtubeid = searchFor(song);
+			foreach(ref song; chart.songs){
+				string id = searchFor(song);
+				logInfo("YoutubeID : %s_%s - %s", song.songname, song.artist, id);
+				song.setYoutubeId(id);
 			}
 		}
 
 		// Create the playlist if required
 		if(cli["--createYoutubePlaylist"].toString.to!bool){
-			foreach(chart; successCharts){
+			foreach(ref chart; successCharts){
 				chart.playListId = createPlaylist(chart);
 			}
 		}

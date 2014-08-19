@@ -16,6 +16,7 @@ ChartzoneSettings settings;
 void setupDBModule(ChartzoneSettings theSettings){
 	settings = theSettings;
 }
+
 /**
 	Handles the connections to chartzoneDB on mongo
 */
@@ -166,6 +167,10 @@ public struct SongEntry {
 	string youtubeid;
 	uint position;
 	string[] genres;
+
+	@property setYoutubeId(string id){
+		this.youtubeid = id;
+	}
 }
 
 /**
