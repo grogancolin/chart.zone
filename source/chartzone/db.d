@@ -10,6 +10,12 @@ import chartzone.datafetchers;
 import chartzone.settings;
 
 import vibe.vibe;
+
+ChartzoneSettings settings;
+
+void setupDBModule(ChartzoneSettings theSettings){
+	settings = theSettings;
+}
 /**
 	Handles the connections to chartzoneDB on mongo
 */
@@ -24,7 +30,7 @@ public:
 		_client = connectMongoDB("127.0.0.1");
 		_db = client.getDatabase(dbstr);
 		_collection = db[collstr];
-		//_all_collections = parseSettingsFile(settingsFile).dbCollections;
+		_all_collections = settings.dbCollections;
 	}
 
 	/*

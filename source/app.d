@@ -2,6 +2,8 @@ module chartzone.main;
 
 import std.stdio;
 import std.conv;
+import std.file;
+import std.datetime;
 import core.thread;
 
 import vibe.vibe;
@@ -18,13 +20,12 @@ import chartzone.chartzone;
  * Global data
  * */
 public ChartzoneDB db;
-public static string settingsFile = "server.json";
-
+ChartzoneSettings chartzoneSettings;
 auto doc = "chartzone
 
     Usage:
         chartzone [--settings SETTINGSFILE] [--port PORT] server 
-        chartzone [--db DB] [--collection COLL] [--createYoutubePlaylist] update CHART ...
+        chartzone [--settings SETTINGSFILE] [--createYoutubePlaylist] update CHART ...
         chartzone -h | --help
         chartzone --version
 
@@ -35,8 +36,6 @@ auto doc = "chartzone
         -n --dontSearchYoutube      Whether to search youtube for the songid at creation time or not [default: false]
         -s --settings SETTINGSFILE  [default: server.json]
         -p --port PORT              The port to run the server under [default: 8080]
-        -d --db DB                  The mongo DB to update [default: chartzone]
-        -t --collection COLL        The mongo Collection to update [default: charts]
         -h --help                   Show this screen.
         -v --version                Show version.
 ";
@@ -44,12 +43,15 @@ auto doc = "chartzone
 
 shared static this(){
 	// get timestamp from std.datetime
-	import std.datetime;
+    if(!"logs/".exists){
+        mkdir("logs");
+    }
 	string time = to!string(Clock.currTime().toISOString());
-	auto logger = cast(shared)new HTMLLogger("chartzone_"~time~".html");
+	auto logger = cast(shared)new HTMLLogger("logs/chartzone_"~time~".html");
 	//logger.lock().format = FileLogger.Format.threadtime;
 	registerLogger(logger);
 }
+
 /**
   * Custom main function
   */
@@ -61,60 +63,85 @@ public void main(string[] args){
      * May help in debugging
      */
     scope(exit){
-            writefln("Shutting down.");
+            //writefln("Shutting down.");
     }
 
+	// Parse command line options
     auto cli = docopt.docopt(doc, args[1..$], true, "0.01alpha");
-	settingsFile = cli["--settings"].toString;
-	setupYoutubeModule(cli["--settings"].toString);
+	// parse runtime settings
+	if(!cli["--settings"].toString.exists){
+		logFatal("Settings file not found at: %s", cli["--settings"].toString);
+		return;
+	}
+	chartzoneSettings = parseSettingsFile(cli["--settings"].toString);
+
+	// pass runtime settings to other modules
+	setupYoutubeModule(chartzoneSettings);
+	setupDBModule(chartzoneSettings);
+
 	logInfo("Command line args passed: %s", cli);
 
     if(cli["update"].toString.to!bool){
-		logInfo("Received update command, Updating charts: %s", cli["CHART"].asList);
+
         // go ahead and call the updater lib
         db = new ChartzoneDB(
-                cli["--db"].toString,
-                cli["--collection"].toString);
+				chartzoneSettings.dbName,
+				chartzoneSettings.dbCollections["charts"]);
 
+		string[] chartsToUpdate = cli["CHART"].asList;
+		logInfo("Received update command, Updating charts: %s", chartsToUpdate);
+
+		if(chartsToUpdate.length==1 && chartsToUpdate[0].toUpper == "ALL")
+			chartsToUpdate = chartGetters.keys;
 		string[] errorCharts;
 		ChartEntry[] successCharts;
-		foreach(chartName; cli["CHART"].asList){
+
+		foreach(chartName; chartsToUpdate){
 			if(chartName !in chartGetters){
-				logDebug("Chart %s no available. Skipping", chartName);
+				logDebug("Chart %s not available. Skipping", chartName);
 				errorCharts ~= chartName;
 			}
 			else{
 				logDebug("Updating: %s", chartName);
 				ChartEntry newEntry = chartGetters[chartName]();
-				db.add(newEntry);
 				successCharts ~= newEntry;
 			}
 		}
 
-		if(successCharts.length>0){
-			logInfo("Successfully updated charts: %s", successCharts.map!(a=> a.name));
-			writefln("Successfully updated charts: ");
-			foreach(chart; successCharts){
-				writefln("\t%s", chart.name);
+		// Update the youtube ID's for each song, later add whatever functions are needed to get other video services
+		foreach(chart; successCharts){
+			logInfo("Searching for chart: %s", chart.name);
+			foreach(song; chart.songs){
+				logDebug("Youtube search: %s %s", song.songname, song.artist);
+				song.youtubeid = searchFor(song);
 			}
 		}
 
+		// Create the playlist if required
 		if(cli["--createYoutubePlaylist"].toString.to!bool){
 			foreach(chart; successCharts){
 				chart.playListId = createPlaylist(chart);
-				db.update(chart.name, chart.date, chart);
 			}
 		}
 
+		// If we have any success charts, print out a status and add to the DB
+		if(successCharts.length>0){
+			logInfo("Committing charts to DB:\n\t%s", successCharts.map!(a=> a.name).join("\n\t"));
+			foreach(chart; successCharts){
+				db.add(chart);
+			}
+		}
+
+		// print any errors we may have
 		if(errorCharts.length>0){
 			stderr.writefln("Error updating charts: ");
 			logInfo("Error updating charts: %s", errorCharts);
 			foreach(chart; errorCharts) {
 				writefln("\t%s", chart);
 			}
-
 			writefln("Ensure charts are in range: \n\t%s", chartGetters.keys);
 		}
+
         return;
     }
     else if(cli["server"].toString.to!bool){

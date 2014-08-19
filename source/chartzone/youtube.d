@@ -22,10 +22,10 @@ private ChartzoneSettings chartzoneSettings;
 /**
 * Module constructor to setup the global variables at startup time - called by main 
 */
-public void setupYoutubeModule(string settingsFile){
+public void setupYoutubeModule(ChartzoneSettings settings){
 
     // read the settings file
-    chartzoneSettings = parseSettingsFile(settingsFile);
+	chartzoneSettings = settings;
 
 	// get the youtube token from the DB.
 	auto db = new YoutubeDB(chartzoneSettings.dbName, chartzoneSettings.dbCollections["youtube"]);
@@ -126,7 +126,7 @@ public YoutubeToken getRefreshToken(){
             req.contentType = "application/x-www-form-urlencoded";
             req.writeBody(cast(ubyte[])postBody);
         }).bodyReader.readAllUTF8().parseJsonString;
-
+	logDebug(__PRETTY_FUNCTION__ ~ " - Response: %s", response);
 
     return YoutubeToken(response["access_token"].get!string, response["expires_in"].get!long, response["token_type"].get!string );
 }
@@ -155,7 +155,7 @@ public void updateYoutubeCredentials(YoutubeCredentials old, YoutubeCredentials 
 /**
  * Returns a JSON object containing the result from youtube.
  */
-public string searchFor(string name, string regionCode="ie", string orderBy="relevance", string type="videO"){
+public string searchFor(string name, string regionCode="ie", string orderBy="relevance", string type="video"){
 	logInfo("Searching youtube for: %s", name);
 
 	// construct the url to send
@@ -170,11 +170,15 @@ public string searchFor(string name, string regionCode="ie", string orderBy="rel
 
 	logDebug("Youtube search URL: %s", url);
 	auto response = parseJsonString(requestHTTP(url, (scope req){}).bodyReader.readAllUTF8);
-
+	logDebug(__PRETTY_FUNCTION__ ~ " - Response: %s", response);
 	//return response.parseJsonString;
     //^^^^^Above can be used later when/if we find a better way of picking the correct song
     //Untill the just return the top song in the lists ID
     return response.items[0].id.videoId.to!string;
+}
+
+public string searchFor(SongEntry song, string regionCode="ie", string orderBy="relevance", string type="video"){
+	return searchFor(song.songname ~ " " ~ song.artist, regionCode, orderBy, type);
 }
 
 /**

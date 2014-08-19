@@ -96,15 +96,13 @@ public ChartEntry getChart_BBCTop40(){
 	auto artist_track = zip(artistListing, trackListing);
 	uint i=1;
 	foreach(ele; artist_track){
-		nameToSearch = format("%s %s", ele[1].innerHTML.decode(), ele[0].innerHTML.decode());
-		nameToSearch = nameToSearch.htmlEntitiesDecode;
-		videoId = searchFor(nameToSearch);
+	
 		//Add song to playlist
 		//addVideoToPlaylist(playListId, videoId);
 		songs ~= SongEntry(
 			ele[1].innerHTML.htmlEntitiesDecode,
 			ele[0].innerHTML.htmlEntitiesDecode,
-			videoId,
+			"unknown-id",
 			i++,
 			["BBCTop40", "pop"]
 			);
@@ -148,14 +146,11 @@ public ChartEntry getChart_BBCTop40Dance(){
 	auto artist_track = zip(artistListing, trackListing);
 	uint i=1;
 	foreach(ele; artist_track){
-		nameToSearch = format("%s %s", ele[1].innerHTML.decode(), ele[0].innerHTML.decode());
-		nameToSearch = nameToSearch.htmlEntitiesDecode;
-		videoId = searchFor(nameToSearch);
 
 		songs ~= SongEntry(
 			ele[1].innerHTML.htmlEntitiesDecode,
 			ele[0].innerHTML.htmlEntitiesDecode,
-			videoId,
+			"unknown-id",
 			i++,
 			["BBCTop40Dance", "Dance"]
 			);
@@ -223,16 +218,11 @@ public ChartEntry getChart_BillboardTop100(){
 				.innerHTML()
 				.chomp();
 
-			nameToSearch = format("%s %s", songTitle, artist);
-			nameToSearch = nameToSearch.htmlEntitiesDecode;
-			videoId = searchFor(nameToSearch);
-
-			// writefln("%s: %s, %s", position, artist, songTitle);
 			// append a new song object to songs[]
 			songs ~= SongEntry(
 					songTitle.htmlEntitiesDecode,
 					artist.htmlEntitiesDecode,
-					videoId,
+					"unknown-id",
 					position.to!uint,
 				["BillboardTop100", "pop"]
 				);
@@ -272,20 +262,15 @@ public ChartEntry getChart_ItunesTop100(){
     	artist = songEntry.getElementsByTagName(`h4`)[0].getElementsByTagName(`a`)[0].innerText();
 
     	if(songTitle != "" && artist != ""){
-        	nameToSearch = format("%s %s", songTitle, artist);
-			nameToSearch = nameToSearch.htmlEntitiesDecode;
-			videoId = searchFor(nameToSearch);
-
             songs ~= SongEntry(
 					songTitle.htmlEntitiesDecode,
 					artist.htmlEntitiesDecode,
-					videoId,
+					"unknown-id",
 					i++,
 					["ItunesTop100", "pop"]
 				);
          }
     }
-
 	return ChartEntry("ItunesTop100", "global", "none",  songs);
 
 }
