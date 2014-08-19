@@ -170,7 +170,6 @@ public void main(string[] args){
 
         listenHTTP(settings, router);
 		logInfo("Server ready...");
-		writefln("Server ready...");
         // Run the Vibe event loop
         lowerPrivileges();
         runEventLoop();
@@ -228,10 +227,10 @@ void contact(HTTPServerRequest req, HTTPServerResponse res)
 }
 
 void processContactForm(HTTPServerRequest req, HTTPServerResponse res){
-	writefln("Recieved contact form: \n\tName -> %s\n\tEmail ->%s\n\tMessage ->%s", 
+	logDebug("Recieved contact form: \n\tName -> %s\n\tEmail ->%s\n\tMessage ->%s", 
 	         req.form["name"], req.form["email"], req.form["message"]);
 
 	MessageEntry msg = MessageEntry(req.form["name"], req.form["email"], req.form["message"]);
 	db.addMessage(msg);
-	res.writeBody("Success");
+	res.writeBody("Success!");
 }

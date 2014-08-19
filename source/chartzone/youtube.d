@@ -194,6 +194,24 @@ public Json addVideoToPlaylist(string playlistId, string videoId){
                      "$API_KEY$" : credentials.publicApiKey,
                      "$ACCESS_TOKEN$" : youtubeToken.access_token]);
 
+	Json testObj = parseJsonString(q{
+		{
+			"snippet" : {
+				"playlistId" : $PLAYLISTID$,
+				"resourceId" : {
+					"kind" : "youtube#videoId",
+					"videoId" : $VIDEOID
+				}
+			},
+			"status" : {
+				"privacyStatus" : "public"
+			},
+			"kind" : "youtube#playlistItem"
+		}
+	}.replaceMap([
+		"$PLAYLISTID$" : playlistId,
+		"$VIDEOID$" : videoId
+	]));
 
     Json obj = Json.emptyObject;
     obj.snippet = Json.emptyObject;
@@ -205,10 +223,10 @@ public Json addVideoToPlaylist(string playlistId, string videoId){
     obj.status.privacyStatus = "public";
     obj.kind = "youtube#playlistItem";
 
-	logDebug("addVideoToPlaylist payload: %s", obj);
+	logDebug("addVideoToPlaylist payload: %s", testObj);
     auto response = requestHTTP(url, (scope req){
 	        req.method = HTTPMethod.POST;
-	        req.writeJsonBody(obj);
+			req.writeJsonBody(testObj);
         }).bodyReader.readAllUTF8;
 
     logDebug("addVideoToPlaylist; Response: %s", response.parseJsonString );
