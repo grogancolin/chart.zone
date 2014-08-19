@@ -1,6 +1,6 @@
 {
     "hostname" : "testname",
-    "port" : 8818,
+    "port" : 8080,
     "dbCollections" : 
         [
             { 
