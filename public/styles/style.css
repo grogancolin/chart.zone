@@ -432,16 +432,93 @@ Think Symetry for this or it will look terrible
 * Youtube Player
 *****************/
 #playerBox{
-    margin-top: 110px;
+    margin-top: 130px;
     margin-left:auto;
     margin-right:auto;
     margin-bottom:10px;
     width: 700px;
-    height:400px;
+    height:300px;
 }
 
 #player{
+    height: 100%;
+    width: 100%;
+    position:relative;
+}
 
+
+/***************
+* Volume Toggle
+****************/
+#volume{
+    margin-left:auto;
+    margin-right:auto;
+    width: 525px;
+    height: 30px;
+}
+
+#volumeLow{
+    float:left;
+    width:40px;
+    height:20px;
+    background:url('../images/audio_volume_low.png') no-repeat;
+    background-position:center;
+    margin-right: 10px;
+    height: 100%;
+    position:relative;
+    box-shadow: 0px 0px 20px rgba(0,0,0,0.6);
+    border-radius:25px;
+}
+
+#volumeLow:hover{
+    opacity: 0.8;
+}
+
+#slider{
+    margin-top:8px;
+    float:left;
+    width: 420px;
+    height:14px;
+}
+
+#slider .ui-slider-range-min {
+    background: #ffb76b; /* Old browsers */
+    background: -moz-linear-gradient(top, #ffb76b 0%, #ffa73d 50%, #ff7f04 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffb76b), color-stop(50%,#ffa73d), color-stop(100%,#ff7f04)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #ffb76b 0%,#ffa73d 50%,#ff7f04 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #ffb76b 0%,#ffa73d 50%,#ff7f04 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #ffb76b 0%,#ffa73d 50%,#ff7f04 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7f04 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffb76b', endColorstr='#ff7f04',GradientType=0 ); /* IE6-9 */
+}
+
+#slider .ui-slider-handle {
+    height:20px;
+    background: #f5f6f6; /* Old browsers */
+    background: -moz-linear-gradient(top, #f5f6f6 0%, #dbdce2 21%, #b8bac6 49%, #dddfe3 80%, #f5f6f6 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f5f6f6), color-stop(21%,#dbdce2), color-stop(49%,#b8bac6), color-stop(80%,#dddfe3), color-stop(100%,#f5f6f6)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #f5f6f6 0%,#dbdce2 21%,#b8bac6 49%,#dddfe3 80%,#f5f6f6 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #f5f6f6 0%,#dbdce2 21%,#b8bac6 49%,#dddfe3 80%,#f5f6f6 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #f5f6f6 0%,#dbdce2 21%,#b8bac6 49%,#dddfe3 80%,#f5f6f6 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #f5f6f6 0%,#dbdce2 21%,#b8bac6 49%,#dddfe3 80%,#f5f6f6 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f5f6f6', endColorstr='#f5f6f6',GradientType=0 ); /* IE6-9 */
+}
+
+#volumeHigh{
+    float:left;
+    width:40px;
+    height:20px;
+    background:url('../images/audio_volume_high.png') no-repeat;
+    background-position:center;
+    margin-left: 10px;
+    height: 100%;
+    position:relative;
+    box-shadow: 0px 0px 20px rgba(0,0,0,0.6);
+    border-radius:25px;
+}
+
+#volumeHigh:hover{
+    opacity: 0.8;
 }
 
 
@@ -454,7 +531,7 @@ Think Symetry for this or it will look terrible
 *********************/
 #coverflowIndex{
     margin-top:10px;
-    width:510px;
+    width:690px;
     height:35px;
     margin-left: auto;
     margin-right:auto;
@@ -561,6 +638,37 @@ Think Symetry for this or it will look terrible
 }
 
 
+.youtubeButton{
+    float:left;
+    width:170px;
+    height:35px;
+    text-align: center;
+    color:black;
+    font-size:15px;
+    line-height: 35px;
+    border-radius: 20px;
+    margin-left: 5px;
+    margin-right:5px;
+    font-weight: 800;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+        color:white;
+    background: #45484d; /* Old browsers */
+    background: -moz-linear-gradient(top, #45484d 0%, #000000 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#45484d), color-stop(100%,#000000)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #45484d 0%,#000000 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #45484d 0%,#000000 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #45484d 0%,#000000 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
+}
+
 
 /********************
 *   CoverFlow
@@ -570,7 +678,7 @@ Think Symetry for this or it will look terrible
 }
 
 .coverflow .cover {
-    margin-top:10px;
+    margin-top:20px;
     width: 80px;
     height: 60px;
     cursor: pointer;
@@ -631,14 +739,14 @@ Think Symetry for this or it will look terrible
 #hovercard{
     overflow:hidden;
     width: 700px;
-    height:400px;
+    height:300px;
     z-index: 10;
     position: absolute;
     top:0;
     left: 50%;
     margin-left: -350px;
     display:none;
-    margin-top: 110px;
+    margin-top: 130px;
 
     opacity: 0.8;
     filter: alpha(opacity=80); /* For IE8 and earlier */
@@ -680,7 +788,7 @@ Think Symetry for this or it will look terrible
 
 #artist h3{
     text-align: left;
-    font-size:50px;
+    font-size:40px;
     line-height: 0px;
 
     text-shadow:
@@ -721,7 +829,7 @@ Think Symetry for this or it will look terrible
 
 #songName h3{
     text-align: left;
-    font-size:50px;
+    font-size:40px;
     line-height: 0px;
 
     text-shadow:
@@ -759,7 +867,7 @@ Think Symetry for this or it will look terrible
 
 #chartName h3{
     text-align: left;
-    font-size:50px;
+    font-size:40px;
     line-height: 0px;
 
     text-shadow:

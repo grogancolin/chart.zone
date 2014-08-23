@@ -18,7 +18,7 @@ block body
 		.button#static
 			a(href="#", onClick="playOrder('static')", title="Stay on page when video finishes")
 				.pause
-					//-&#9616;&#9616;
+					&#9616;&#9616;
 		.button#shuffle
 			a(href="#", onClick="playOrder('shuffle')", title="Shuffle Playing Order")
 				img(src="../images/shuffle.png", alt="Shuffle Playing Order", title="Shuffle Playing Order")
@@ -27,7 +27,7 @@ block body
 				p.singleBracket ›
 	#outerWrapper
 		#playerBox
-			#player
+			iframe(id="player", src="http://w.soundcloud.com/player/?url=#{chart.songs[0].soundcloudUrl}&auto_play=true&hide_related=true&visual=true&show_comments=false", frameborder="no")
 		#hovercard
 			#artist
 				span Artist
@@ -41,19 +41,27 @@ block body
 			#position
 				span Position
 				h3
+		#volume
+			#volumeLow(onClick="mute();")
+			#slider
+			#volumeHigh(onClick="maxVol();")
 		#coverflowIndex
-			.indexPos.firstPos(onClick="changeVideo('#{chart.songs[0].youtubeid}')") First Song
-			.indexPos.middlePos(onClick="changeVideo('#{chart.songs[cast(int)chart.songs.length/2].youtubeid}')") Middle Song
-			.indexPos.lastPos(onClick="changeVideo('#{chart.songs[$-1].youtubeid}')") Last Song
+			.indexPos.firstPos(onClick="changeVideo('#{chart.songs[0].soundcloudUrl}')") First Song
+			.indexPos.middlePos(onClick="changeVideo('#{chart.songs[cast(int)chart.songs.length/2].soundcloudUrl}')") Middle Song
+			.indexPos.lastPos(onClick="changeVideo('#{chart.songs[$-1].soundcloudUrl}')") Last Song
 			.goToBox Go to:
 				input(type="text", id="goToBoxText")
 				input(type="submit", onClick="goToIndex()", id="goToBoxSubmit", value='Go!')
+			.youtubeButton ChartZone@Youtube
+			//- NEED TO PUT SOMETHING IN HERE TO GO TO YOUTUBE either open blank or in same window
 
 		.coverflow
 			- foreach(int i, SongEntry song; chart.songs)
-				.cover(onClick="changeVideo('#{song.youtubeid}')",  onmouseover="hovercardData('#{song.artist}', '#{song.songname}', '#{chart.name}', #{i+1})")=i+1
+				.cover(onClick="changeSong('#{song.soundcloudUrl}')", onmouseover="hovercardData(\'#{song.artist}\', \'#{song.songname}\', '#{chart.name}', #{i+1})")=i+1
 
-	script(type="text/javascript", src="scripts/youtubePlayerControls.js")
+	script(type="text/javascript", src="scripts/soundcloud.embed.min.js")
+	script(type="text/javascript", src="scripts/soundcloud.controls.js")
+	script(type="text/javascript", src="scripts/volume.controls.js")
 	script(type="text/javascript", src="scripts/jquery.interpolate.js")
 	script(type="text/javascript", src="scripts/jquery.coverflow.js")
 	script(type="text/javascript", src="scripts/coverflow.controls.js")

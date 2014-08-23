@@ -96,7 +96,7 @@ public ChartEntry getChart_BBCTop40(){
 	auto artist_track = zip(artistListing, trackListing);
 	uint i=1;
 	foreach(ele; artist_track){
-	
+
 		//Add song to playlist
 		//addVideoToPlaylist(playListId, videoId);
 		songs ~= SongEntry(
@@ -104,7 +104,8 @@ public ChartEntry getChart_BBCTop40(){
 			ele[0].innerHTML.htmlEntitiesDecode,
 			"unknown-id",
 			i++,
-			["BBCTop40", "pop"]
+			["BBCTop40", "pop"],
+			"unknown-url"
 			);
 	}
 
@@ -152,7 +153,8 @@ public ChartEntry getChart_BBCTop40Dance(){
 			ele[0].innerHTML.htmlEntitiesDecode,
 			"unknown-id",
 			i++,
-			["BBCTop40Dance", "Dance"]
+			["BBCTop40Dance", "Dance"],
+			"unknown-url"
 			);
 	}
 	return ChartEntry(
@@ -224,7 +226,8 @@ public ChartEntry getChart_BillboardTop100(){
 					artist.htmlEntitiesDecode,
 					"unknown-id",
 					position.to!uint,
-				["BillboardTop100", "pop"]
+				["BillboardTop100", "pop"],
+				"unknown-url"
 				);
 		}
 	}
@@ -250,7 +253,7 @@ public ChartEntry getChart_ItunesTop100(){
 	auto chartListing = htmlObj.getElementsByTagName(`ul`);
 	assert(chartListing.length >= 1,
 			"Error parsing response from iTunes Top 100. Error: couldnt find at least one ul tag");
-	       
+
 	SongEntry[] songs;
 	string nameToSearch;
 	string videoId;
@@ -267,7 +270,8 @@ public ChartEntry getChart_ItunesTop100(){
 					artist.htmlEntitiesDecode,
 					"unknown-id",
 					i++,
-					["ItunesTop100", "pop"]
+					["ItunesTop100", "pop"],
+					"unknown-url"
 				);
          }
     }

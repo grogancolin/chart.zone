@@ -12,6 +12,7 @@ import docopt;
 import chartzone.datafetchers;
 import chartzone.db;
 import chartzone.youtube;
+import chartzone.soundcloud;
 import chartzone.settings;
 import chartzone.chartzone;
 
@@ -24,7 +25,7 @@ ChartzoneSettings chartzoneSettings;
 auto doc = "chartzone
 
     Usage:
-        chartzone [--settings SETTINGSFILE] [--port PORT] server 
+        chartzone [--settings SETTINGSFILE] [--port PORT] server
         chartzone [--settings SETTINGSFILE] [--createYoutubePlaylist] update CHART ...
         chartzone -h | --help
         chartzone --version
@@ -112,9 +113,16 @@ public void main(string[] args){
 		foreach(ref chart; successCharts){
 			logInfo("Searching for chart: %s", chart.name);
 			foreach(ref song; chart.songs){
-				string id = searchFor(song);
-				logInfo("YoutubeID : %s_%s - %s", song.songname, song.artist, id);
-				song.setYoutubeId(id);
+
+				//YOUTUBE STUFF
+				string youtubeId = searchFor(song);
+				logInfo("YoutubeID : %s_%s - %s", song.songname, song.artist, youtubeId);
+				song.setYoutubeId(youtubeId);
+
+				//SOUNDCLOUD STUFF
+				string soundcloudUrl = searchSoundcloud(song);
+				logInfo("YoutubeID : %s_%s - %s", song.songname, song.artist, youtubeId);
+				song.setSoundcloudUrl(soundcloudUrl);
 			}
 		}
 
@@ -228,7 +236,7 @@ void contact(HTTPServerRequest req, HTTPServerResponse res)
 }
 
 void processContactForm(HTTPServerRequest req, HTTPServerResponse res){
-	logDebug("Recieved contact form: \n\tName -> %s\n\tEmail ->%s\n\tMessage ->%s", 
+	logDebug("Recieved contact form: \n\tName -> %s\n\tEmail ->%s\n\tMessage ->%s",
 	         req.form["name"], req.form["email"], req.form["message"]);
 
 	MessageEntry msg = MessageEntry(req.form["name"], req.form["email"], req.form["message"]);

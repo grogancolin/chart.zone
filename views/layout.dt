@@ -5,6 +5,7 @@ html
 	head
 		title Chartzone
 		link(rel="icon", type="image/x-icon", href="images/favicon.ico")
+		link(rel='stylesheet', type='text/css', href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/themes/base/jquery-ui.css')
 		- css("style");
 		- css("toggleSwitch");
 		script(src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js")

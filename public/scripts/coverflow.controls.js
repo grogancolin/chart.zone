@@ -14,7 +14,7 @@ $(function() {
 		$('.coverflow').coverflow('index', 0);
 		$('.coverflow').coverflow('index', 1);
 		$('.coverflow').coverflow('index', 0);
-		changeToSongOrPlaylist(1);
+		changeSongWithControls(1);
 	});
 
 	$('.middlePos').click(function() {
@@ -22,14 +22,14 @@ $(function() {
 		$('.coverflow').coverflow('index',middle);
 		$('.coverflow').coverflow('index',middle+1);
 		$('.coverflow').coverflow('index',middle);
-		changeToSongOrPlaylist(middle);
+		changeSongWithControls(middle);
 	});
 
 	$('.lastPos').click(function() {
 		$('.coverflow').coverflow('index', -1);
 		$('.coverflow').coverflow('index', -2);
 		$('.coverflow').coverflow('index', -1);
-		changeToSongOrPlaylist(-1);
+		changeSongWithControls(-1);
 	});
 });
 
@@ -47,7 +47,7 @@ function goToIndex(){
 		$('.coverflow').coverflow('index', 1);
 		$('.coverflow').coverflow('index', 0);
 		var curIndex = $('.coverflow').coverflow('index');
-		changeToSongOrPlaylist(curIndex);
+		changeSongWithControls(curIndex);
 	}
 	if(index > 1 && index <= size){
 		$('.coverflow').coverflow('index', index-1);
@@ -55,7 +55,7 @@ function goToIndex(){
 		$('.coverflow').coverflow('index', index-1);
 		console.log(index)
 		var curIndex = $('.coverflow').coverflow('index');
-		changeToSongOrPlaylist(curIndex);
+		changeSongWithControls(curIndex);
 	}
 }
 
