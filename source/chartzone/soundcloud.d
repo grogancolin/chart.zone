@@ -29,12 +29,17 @@ public string searchSoundcloud(string query){
             ["$CLIENT_ID$" : clientId,
              "$QUERY$"     : query])
             .encode;
-    //	debug writefln("Sending ----\n%s\n---- to soundcloud;", url);
-	writefln("Search URL: %s", url);
-	auto response = parseJsonString(requestHTTP(url, (scope req){}).bodyReader.readAllUTF8);
-	debug writefln("---\nGot: %s\nfrom soundcloud\n---;", response);
+			
+	auto response = requestHTTP(url, (scope req){}).bodyReader.readAllUTF8;
     //Return the first songs track URL
-    return response[0].uri.to!string;
+	logDebug("Soundloud request: %s -> %s", url, response);
+
+	string shouldStartWith = `[{"kind":"track"`;
+	if(response.startsWith(shouldStartWith)){
+		return parseJsonString(response)[0].uri.to!string;
+	}
+	return "unknown_id";
+
 }
 
 public string searchSoundcloud(SongEntry song){

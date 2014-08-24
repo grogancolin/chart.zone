@@ -121,7 +121,7 @@ public void main(string[] args){
 
 				//SOUNDCLOUD STUFF
 				string soundcloudUrl = searchSoundcloud(song);
-				logInfo("YoutubeID : %s_%s - %s", song.songname, song.artist, youtubeId);
+				logInfo("SoundcloudID : %s_%s - %s", song.songname, song.artist, youtubeId);
 				song.setSoundcloudUrl(soundcloudUrl);
 			}
 		}
@@ -175,7 +175,6 @@ public void main(string[] args){
                 chartzoneSettings.dbName,
                 chartzoneSettings.dbCollections["charts"]
             );
-
 
         listenHTTP(settings, router);
 		logInfo("Server ready...");
