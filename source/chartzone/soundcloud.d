@@ -10,11 +10,12 @@ import std.string;
 import std.array : replace;
 import std.uri : encode;
 import std.stdio;
+import std.array;
+import std.algorithm;
+
 /**
 	Module provides functions to talk to the soundcloud api
 */
-import std.stdio;
-
 /**
  * Returns a JSON object containing the result from soundcloud.
  */
@@ -33,10 +34,19 @@ public string searchSoundcloud(string query){
 	auto response = requestHTTP(url, (scope req){}).bodyReader.readAllUTF8;
     //Return the first songs track URL
 	logDebug("Soundloud request: %s -> %s", url, response);
+	auto tmp = File("tmpOut.txt", "w");
 
-	string shouldStartWith = `[{"kind":"track"`;
-	if(response.startsWith(shouldStartWith)){
-		return parseJsonString(response)[0].uri.to!string;
+
+	if(response.canFind(`[{"kind":"track"`)){
+
+		auto parsedJson = response.parseJsonString;
+		Json max = parsedJson[0]; // guess the current max 
+		for(int i=0; i<parsedJson.length; i++){
+			if(parsedJson[i].playback_count > max.playback_count){
+				max = parsedJson[i];
+			}
+		}
+		return max.uri.to!string;
 	}
 	return "unknown_id";
 

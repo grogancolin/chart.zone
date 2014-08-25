@@ -121,7 +121,7 @@ public void main(string[] args){
 
 				//SOUNDCLOUD STUFF
 				string soundcloudUrl = searchSoundcloud(song);
-				logInfo("SoundcloudID : %s_%s - %s", song.songname, song.artist, youtubeId);
+				logInfo("SoundcloudURL : %s_%s - %s", song.songname, song.artist, soundcloudUrl);
 				song.setSoundcloudUrl(soundcloudUrl);
 			}
 		}
