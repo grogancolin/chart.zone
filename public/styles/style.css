@@ -152,7 +152,6 @@ Think Symetry for this or it will look terrible
     width: 248px;
     overflow:hidden;
     margin-bottom: 30px;
-    border: 1px solid black;
     height: 130px;
     border-radius: 20px;
     background:white;
@@ -197,8 +196,6 @@ Think Symetry for this or it will look terrible
     opacity: 0.5;
     filter: alpha(opacity=50); /* For IE8 and earlier */
 }
-
-
 
 
 /**********************************************
