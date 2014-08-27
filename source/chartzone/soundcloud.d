@@ -19,7 +19,7 @@ import std.algorithm;
 /**
  * Returns a JSON object containing the result from soundcloud.
  */
-public string searchSoundcloud(string query){
+public Json searchSoundcloud(string query){
 
     string clientId = "4346c8125f4f5c40ad666bacd8e96498";
 
@@ -30,7 +30,7 @@ public string searchSoundcloud(string query){
             ["$CLIENT_ID$" : clientId,
              "$QUERY$"     : query])
             .encode;
-			
+
 	auto response = requestHTTP(url, (scope req){}).bodyReader.readAllUTF8;
     //Return the first songs track URL
 	logDebug("Soundloud request: %s -> %s", url, response);
@@ -40,18 +40,21 @@ public string searchSoundcloud(string query){
 	if(response.canFind(`[{"kind":"track"`)){
 
 		auto parsedJson = response.parseJsonString;
-		Json max = parsedJson[0]; // guess the current max 
+		Json max = parsedJson[0]; // guess the current max
 		for(int i=0; i<parsedJson.length; i++){
 			if(parsedJson[i].playback_count > max.playback_count){
 				max = parsedJson[i];
 			}
 		}
-		return max.uri.to!string;
+		return max;//max.uri.to!string;
 	}
-	return "unknown_id";
+	Json emptyRes = Json.emptyObject;
+	emptyRes.uri = "unknown_id";
+	emptyRes.artwork_url = "unknown_url";
+	return emptyRes;
 
 }
 
-public string searchSoundcloud(SongEntry song){
+public Json searchSoundcloud(SongEntry song){
     return searchSoundcloud(song.songname ~ " " ~ song.artist);
 }

@@ -168,6 +168,7 @@ public struct SongEntry {
 	uint position;
 	string[] genres;
 	string soundcloudUrl;
+	string soundcloudArtwork;
 
 	@property setYoutubeId(string id){
 		this.youtubeid = id;
@@ -175,6 +176,10 @@ public struct SongEntry {
 
 	@property setSoundcloudUrl(string url){
 		this.soundcloudUrl = url;
+	}
+
+	@property setSoundcloudArtwork(string url){
+		this.soundcloudArtwork = url;
 	}
 
 }

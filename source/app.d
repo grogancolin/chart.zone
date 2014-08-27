@@ -120,9 +120,10 @@ public void main(string[] args){
 				song.setYoutubeId(youtubeId);
 
 				//SOUNDCLOUD STUFF
-				string soundcloudUrl = searchSoundcloud(song);
-				logInfo("SoundcloudURL : %s_%s - %s", song.songname, song.artist, soundcloudUrl);
-				song.setSoundcloudUrl(soundcloudUrl);
+				Json soundcloudObj = searchSoundcloud(song);
+				logInfo("Soundcloud Artist_Title : %s_%s - URL:  %s - Artwork: %s", song.songname, song.artist, soundcloudObj.uri.to!string, soundcloudObj.artwork_url.to!string);
+				song.setSoundcloudUrl(soundcloudObj.uri.to!string);
+				song.setSoundcloudArtwork(soundcloudObj.artwork_url.to!string);
 			}
 		}
 

@@ -118,12 +118,12 @@ public ChartEntry getChart_BBCTop40Indie(){
 	// read from BBC
 	string url = "http://www.bbc.co.uk/radio1/chart/indiesingles";
 	string bbcTop40 = getDataFromURL(url);
-	
+
 	Document htmlObj = new Document();
 	htmlObj.parse(bbcTop40);
 	auto artistListing = htmlObj.getElementsBySelector(`div[class="cht-entry-artist"]`);
 	auto trackListing = htmlObj.getElementsBySelector(`div[class="cht-entry-title"]`);
-	
+
 	// ensure we have equal numbers
 	if(artistListing.length == 0 || trackListing.length == 0){
 		logInfo("Invalid info from %s", url);
@@ -133,14 +133,14 @@ public ChartEntry getChart_BBCTop40Indie(){
 		logInfo("Invalid info from %s", url);
 		throw new ChartFetcherException("Error parsing information from " ~ url);
 	}
-	
+
 	SongEntry[] songs;
 	string nameToSearch;
 	string videoId;
 	auto artist_track = zip(artistListing, trackListing);
 	uint i=1;
 	foreach(ele; artist_track){
-		
+
 		//Add song to playlist
 		//addVideoToPlaylist(playListId, videoId);
 		songs ~= SongEntry(
@@ -152,11 +152,11 @@ public ChartEntry getChart_BBCTop40Indie(){
 		"unknown-url"
 		);
 	}
-	
+
 	return ChartEntry(
 		"BBCTop40Indie", "uk", "none",  songs
 		);
-	
+
 }
 
 /**
@@ -212,7 +212,7 @@ public ChartEntry getChart_BBCTop40Rock(){
 	htmlObj.parse(bbcTop40);
 	auto artistListing = htmlObj.getElementsBySelector(`div[class="cht-entry-artist"]`);
 	auto trackListing = htmlObj.getElementsBySelector(`div[class="cht-entry-title"]`);
-	
+
 	// ensure we have equal numbers
 	if(artistListing.length == 0 || trackListing.length == 0){
 		throw new ChartFetcherException("Received no 'div[class=\"cht-entry-artist\"]' tags from " ~ url);
@@ -226,7 +226,7 @@ public ChartEntry getChart_BBCTop40Rock(){
 	auto artist_track = zip(artistListing, trackListing);
 	uint i=1;
 	foreach(ele; artist_track){
-		
+
 		songs ~= SongEntry(
 			ele[1].innerHTML.htmlEntitiesDecode,
 		ele[0].innerHTML.htmlEntitiesDecode,
@@ -261,24 +261,24 @@ public ChartEntry getChart_BillboardTop25Rock(){
 		auto chartListing = htmlObj.getElementsBySelector(`div[class="listing chart_listing"]`);
 		if(chartListing.length != 1)
 			throw new ChartFetcherException("Error parsing response from BillboardTop25Rock. Error: couldnt find <div class=\"listing chart_listing\">");
-		
+
 		foreach(songEntry; chartListing[0].getElementsByTagName(`article`)){
 			string position = songEntry
 				.getElementsByTagName(`a`)[0] // the first <a is the position
 			.getAttribute("id")
 				.strip()	//remove any pre and post whitespace
 					.replace("rank_", "");
-			
+
 			string artist = songEntry
 				.getElementsByTagName(`a`)[1] // the second <a> is the artist
 			.getAttribute("title")
 				.strip();
-			
+
 			string songTitle = songEntry
 				.getElementsByTagName(`h1`)[0] // the first h1 is the song title
 			.innerHTML()
 				.chomp();
-			
+
 			// append a new song object to songs[]
 			songs ~= SongEntry(
 				songTitle.htmlEntitiesDecode,
@@ -401,6 +401,52 @@ public ChartEntry getChart_ItunesTop100(){
          }
     }
 	return ChartEntry("ItunesTop100", "global", "none",  songs);
+
+}
+
+
+/**
+	Gets the Irish Top 100 singles chart and puts it into a chart entry object
+*/
+
+public ChartEntry getChart_IrishTop100(){
+	//If you get an error check this out!!!
+	//This might change not sure the ASP site thing wasn't working
+    string irishTop100 = getDataFromURL("http://www.chart-track.co.uk/index.jsp?c=p/musicvideo/music/latest/index_test.jsp&ct=240001");
+	logInfo("%s", irishTop100);
+    Document htmlObj = new Document();
+	htmlObj.parse(irishTop100.htmlEntitiesDecode);
+	auto chartListing = htmlObj.getElementsByTagName(`table`);
+	assert(chartListing.length >= 1,
+			"Error parsing response from Irish Top 100. Error: couldnt find at least one tbody tag");
+
+	SongEntry[] songs;
+    uint i = 1;
+    //Skip the first iteration as that just has column headers
+    bool isFirst = true;
+    foreach(songEntry; chartListing[3].getElementsByTagName(`tr`)){
+    	if(isFirst){
+    		isFirst = false;
+    		logInfo("HEHEHEE");
+    		continue;
+    	}
+    	string songTitle = "", artist = "";
+    	songTitle = songEntry.getElementsByTagName(`td`)[5].innerText();
+    	artist = songEntry.getElementsByTagName(`td`)[6].innerText();
+
+    	if(songTitle != "" && artist != ""){
+            songs ~= SongEntry(
+					songTitle.htmlEntitiesDecode,
+					artist.htmlEntitiesDecode,
+					"unknown-id",
+					i++,
+					["IrishTop100", "pop"],
+					"unknown-url",
+					"unknown-url"
+				);
+         }
+    }
+	return ChartEntry("IrishTop100", "ireland", "none",  songs);
 
 }
 

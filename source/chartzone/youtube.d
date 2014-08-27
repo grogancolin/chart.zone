@@ -20,7 +20,7 @@ private static YoutubeToken youtubeToken;
 private ChartzoneSettings chartzoneSettings;
 
 /**
-* Module constructor to setup the global variables at startup time - called by main 
+* Module constructor to setup the global variables at startup time - called by main
 */
 public void setupYoutubeModule(ChartzoneSettings settings){
 
@@ -213,7 +213,7 @@ public Json addVideoToPlaylist(string playlistId, string videoId){
 		"$VIDEOID$" : videoId
 	]));
 
-    Json obj = Json.emptyObject;
+/*    Json obj = Json.emptyObject;
     obj.snippet = Json.emptyObject;
     obj.snippet.playlistId = playlistId;
     obj.snippet.resourceId = Json.emptyObject;
@@ -221,7 +221,7 @@ public Json addVideoToPlaylist(string playlistId, string videoId){
     obj.snippet.resourceId.videoId = videoId;
     obj.status = Json.emptyObject;
     obj.status.privacyStatus = "public";
-    obj.kind = "youtube#playlistItem";
+    obj.kind = "youtube#playlistItem";*/
 
 	logDebug("addVideoToPlaylist payload: %s", testObj);
     auto response = requestHTTP(url, (scope req){

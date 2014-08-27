@@ -2,6 +2,7 @@ extends layout
 block body
 	- import chartzone.db;
 	- import std.datetime;
+	- import std.regex;
 
 	#header
 		a(href="/")
@@ -57,11 +58,13 @@ block body
 
 		.coverflow
 			- foreach(int i, SongEntry song; chart.songs)
+				- string songTitle = song.songname.replace(regex("'"), "\\'");
+				- string artist = song.artist.replace(regex("'"), "\\'");
 				- if(song.soundcloudUrl != "unknown_id")
-					.cover(onClick="changeSong('#{song.soundcloudUrl}')", onmouseover="hovercardData(\'#{song.artist}\', \'#{song.songname}\', '#{chart.name}', #{i+1})")=i+1
-				- else 
+					.cover(onClick="changeSong('#{song.soundcloudUrl}')", onmouseover="hovercardData('#{artist}', '#{songTitle}', '#{chart.name}', #{i+1})")=i+1
+				- else
 					//- Need to handle the case where the soundloud ID doesnt exist here. I suspect something like "We're sorry, watch this on youtube?" For now do nothing
-					.cover(onClick="", onmouseover="hovercardData(\'#{song.artist}\', \'#{song.songname}\', '#{chart.name}', #{i+1})")=i+1
+					.cover(onClick="", onmouseover="hovercardData('#{artist}', '#{songTitle}', '#{chart.name}', #{i+1})")=i+1
 
 	script(type="text/javascript", src="scripts/soundcloud.embed.min.js")
 	script(type="text/javascript", src="scripts/soundcloud.controls.js")
