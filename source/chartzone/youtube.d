@@ -178,7 +178,16 @@ public string searchFor(string name, string regionCode="ie", string orderBy="rel
 }
 
 public string searchFor(SongEntry song, string regionCode="ie", string orderBy="relevance", string type="video"){
-	return searchFor(song.songname ~ " " ~ song.artist, regionCode, orderBy, type);
+        string songname = song.songname;
+        string artist;
+        if(songname.canFind(",")){
+                songname = songname[0..songname.indexOf(",")];
+        }
+        if(artist.canFind(",")){
+                artist = artist[0..artist.indexOf(",")];
+        }
+        return searchFor(songname ~ " " ~ artist, regionCode, orderBy, type);
+        
 }
 
 /**
