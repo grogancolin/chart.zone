@@ -29,5 +29,8 @@ block body
 						input#submit-button.submit-button(type="submit", value="Submit Message")
 
 
+	//- Jquery do this before the other scripts don't put as async as shit goes crazy
+	script(type="text/javascript", src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js")
+	script(type="text/javascript", src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js")
 
 	script(type="text/javascript", src="scripts/contactForm.js")

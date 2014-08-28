@@ -66,6 +66,10 @@ block body
 					//- Need to handle the case where the soundloud ID doesnt exist here. I suspect something like "We're sorry, watch this on youtube?" For now do nothing
 					.cover(onClick="", onmouseover="hovercardData('#{artist}', '#{songTitle}', '#{chart.name}', #{i+1})")=i+1
 
+	//- Jquery do this before the other scripts don't put as async as shit goes crazy
+	script(type="text/javascript", src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js")
+	script(type="text/javascript", src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js")
+
 	script(type="text/javascript", src="scripts/soundcloud.embed.min.js")
 	script(type="text/javascript", src="scripts/soundcloud.controls.js")
 	script(type="text/javascript", src="scripts/volume.controls.js")
