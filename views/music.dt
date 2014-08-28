@@ -11,7 +11,7 @@ block body
 			h1 About Us
 		a(href="/contact", title="Contact Us")
 			h1 Contact Us
-	#buttonBoxHead Playing Order Controls ▲
+	#buttonBoxHead Playing Order Controls ▼
 	#buttonBox(style="display:none;")
 		.button#prev
 			a(href="#", onClick="playOrder('prev')", title="Play Previous Video when current finishes")
