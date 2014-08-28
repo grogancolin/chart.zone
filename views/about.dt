@@ -9,3 +9,27 @@ block body
 			h1 Contact Us
 	#outerWrapper
 		#innerWrapper
+			#aboutBox
+				img(src="../images/everyone.png", alt="This is for everyone")
+				#story
+					h2 Our Story
+						p Chart.Zone was created in order for people to spend less time searching for music and
+							|more time listening. In recent years an abundance of great music services have come
+							|of age such as Soundcloud, Youtube and Spotify but sometimes you just want
+							|to leave something on in the background or listen to at a party.
+						p Everyone these days has at some point in their lives been to a social gathering with
+							|too many DJ's each wanting to play their own favorite song(s) to entertain others.
+							|Much of the time this involves looking up whats current in the music charts or |finding that cool song from their favorite movie (coming soon to chartzone!).
+						p Chartzones goal is to stop the silence and get some good tunes going. We'll always do
+							|our best to keep this site as simple as possible for you to use and engage with and
+							|if we aren't doing that be sure to
+							a(href="/contact", title="Contact Us")let us know!
+				#future
+					h2 What Comes Next!
+						p We will always be adding charts, lists and other archives of music to chart.zone but
+							|if you would like us to stop twiddling our thumbs and put countries chart up
+							a(href="/contact", title="Contact Us") tell us!!
+							|Soon we hope to add a movie section where you can listen to you favorite movie
+							|soundtracks and even add new ones to the site.
+							|Finally we have have a few suprises in store that we hope you enjoy but all will be
+							|revealed in due time.

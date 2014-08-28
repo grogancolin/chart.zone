@@ -10,15 +10,15 @@ block body
 	#outerWrapper
 		#innerWrapper
 			#contact-form
-				h1 Fill out form below to contact us. We will try to respond to your query asap!
+				h1 Fill out the form below to contact us. We will try to respond to your query asap!
 				ul#errors
 					li#info There were problems with the form.
 				p#success Thanks! We'll try to response asap...
 				form(id="contactForm", name="contactForm")
-					label(for="name") Name: 
+					label(for="name") Name:
 						span.required *
 					input#name.name(type="text", value="", placeholder="Name...", required="required", autofocus="autofocus")
-					label(for="email") Email Address: 
+					label(for="email") Email Address:
 						span.required *
 					input#email.email(type="text", value="", placeholder="email@address.com", required="required")
 					label(for="message") Message:
