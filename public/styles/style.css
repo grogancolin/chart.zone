@@ -1,6 +1,6 @@
 body {
     font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-    background:url("../images/background.png");
+    background:url("../images/background2.png");
     margin:0;
     padding:0;
 
@@ -157,7 +157,6 @@ Think Symetry for this or it will look terrible
     background:white;
     background-position:center;
 
-transform: translateZ( -100px );
 }
 
 .box p{
