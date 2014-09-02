@@ -164,22 +164,55 @@ public ChartEntry getLatestChart(ChartzoneDB db, string chartName){
 public struct SongEntry {
 	string songname;
 	string artist;
-	string youtubeid;
+	string[] youtubeIds;
+	string[] youtubeImages;
 	uint position;
 	string[] genres;
-	string soundcloudUrl;
-	string soundcloudArtwork;
+	string[] soundcloudUrls;
+	string[] soundcloudImages;
 
-	@property setYoutubeId(string id){
-		this.youtubeid = id;
+	@property setYoutubeIds(Json obj){
+		foreach(item; obj.items){
+			try{
+				this.youtubeIds ~= item.id.videoId.to!string;
+			}
+			catch(Exception e){
+				this.youtubeIds ~= "unknown-id";
+			}
+		}
 	}
 
-	@property setSoundcloudUrl(string url){
-		this.soundcloudUrl = url;
+	@property setYoutubeImages(Json obj){
+		foreach(item; obj.items){
+			try{
+				this.youtubeImages ~= item.snippet.thumbnails["default"].url.to!string;
+			}
+			catch(Exception e){
+				this.youtubeImages ~= "unknown-url";
+			}
+		}
 	}
 
-	@property setSoundcloudArtwork(string url){
-		this.soundcloudArtwork = url;
+	@property setSoundcloudUrls(Json[] objs){
+		for(uint i = 0; i<objs.length; i++){
+			try{
+				this.soundcloudUrls ~= objs[i].uri.to!string;
+			}
+			catch(Exception e){
+				this.soundcloudUrls ~= "unknown-url";
+			}
+		}
+	}
+
+	@property setSoundcloudImages(Json[] objs){
+		for(uint i = 0; i<objs.length; i++){
+			try{
+				this.soundcloudImages ~= objs[i].artwork_url.to!string;
+			}
+			catch(Exception e){
+				this.soundcloudImages ~= "unknown-url";
+			}
+		}
 	}
 
 }

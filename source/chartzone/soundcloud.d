@@ -19,7 +19,7 @@ import std.algorithm;
 /**
  * Returns a JSON object containing the result from soundcloud.
  */
-public Json searchSoundcloud(string query){
+public Json[] searchSoundcloud(string query){
 
     string clientId = "4346c8125f4f5c40ad666bacd8e96498";
 
@@ -40,21 +40,36 @@ public Json searchSoundcloud(string query){
 	if(response.canFind(`[{"kind":"track"`)){
 
 		auto parsedJson = response.parseJsonString;
-		Json max = parsedJson[0]; // guess the current max
-		for(int i=0; i<parsedJson.length; i++){
-			if(parsedJson[i].playback_count > max.playback_count){
-				max = parsedJson[i];
+		/*
+		//Bubble sort and then take the top 5
+		bool loop = true;
+		while (loop) {
+			loop = false;
+			for (uint i=0; i<parsedJson.length-1; i++) {
+				if(parsedJson[i].playback_count > parsedJson[i+1].playback_count) {
+					Json temp = parsedJson[i];
+					parsedJson[i] = parsedJson[i+1];
+					parsedJson[i+1] = temp;
+					loop = true;
+				}
 			}
 		}
-		return max;//max.uri.to!string;
+		*/
+		if(parsedJson.length < 5)
+			return parsedJson[0..parsedJson.length-1];
+		else
+			return parsedJson[0..4];
 	}
-	Json emptyRes = Json.emptyObject;
-	emptyRes.uri = "unknown_id";
-	emptyRes.artwork_url = "unknown_url";
-	return emptyRes;
+
+	//Return an empty array with object that contains unknown_url fields
+	Json[] emptyResArr;
+	emptyResArr ~= Json.emptyObject;
+	emptyResArr[0].uri = "unknown_url";
+	emptyResArr[0].artwork_url = "unknown_url";
+	return emptyResArr;
 
 }
 
-public Json searchSoundcloud(SongEntry song){
+public Json[] searchSoundcloud(SongEntry song){
     return searchSoundcloud(song.songname ~ " " ~ song.artist);
 }

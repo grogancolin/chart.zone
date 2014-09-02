@@ -28,7 +28,7 @@ block body
 				p.singleBracket ›
 	#outerWrapper
 		#playerBox
-			iframe(id="player", src="http://w.soundcloud.com/player/?url=#{chart.songs[0].soundcloudUrl}&auto_play=true&hide_related=true&visual=true&show_comments=false", frameborder="no")
+			iframe(id="player", src="http://w.soundcloud.com/player/?url=#{chart.songs[0].soundcloudUrls[0]}&auto_play=true&hide_related=true&visual=true&show_comments=false", frameborder="no")
 		#hovercard
 			#artist
 				span Artist
@@ -47,9 +47,9 @@ block body
 			#slider
 			#volumeHigh(onClick="maxVol();")
 		#coverflowIndex
-			.indexPos.firstPos(onClick="changeVideo('#{chart.songs[0].soundcloudUrl}')") First Song
-			.indexPos.middlePos(onClick="changeVideo('#{chart.songs[cast(int)chart.songs.length/2].soundcloudUrl}')") Middle Song
-			.indexPos.lastPos(onClick="changeVideo('#{chart.songs[$-1].soundcloudUrl}')") Last Song
+			.indexPos.firstPos(onClick="changeVideo('#{chart.songs[0].soundcloudUrls[0]}')") First Song
+			.indexPos.middlePos(onClick="changeVideo('#{chart.songs[cast(int)chart.songs.length/2].soundcloudUrls[0]}')") Middle Song
+			.indexPos.lastPos(onClick="changeVideo('#{chart.songs[$-1].soundcloudUrls[0]}')") Last Song
 			.goToBox Go to:
 				input(type="text", id="goToBoxText")
 				input(type="submit", onClick="goToIndex()", id="goToBoxSubmit", value='Go!')
@@ -60,8 +60,8 @@ block body
 			- foreach(int i, SongEntry song; chart.songs)
 				- string songTitle = song.songname.replace(regex("'"), "\\'");
 				- string artist = song.artist.replace(regex("'"), "\\'");
-				- if(song.soundcloudUrl != "unknown_id")
-					.cover(onClick="changeSong('#{song.soundcloudUrl}')", onmouseover="hovercardData('#{artist}', '#{songTitle}', '#{chart.name}', #{i+1})")=i+1
+				- if(song.soundcloudUrls[0] != "unknown_id")
+					.cover(onClick="changeSong('#{song.soundcloudUrls[0]}')", onmouseover="hovercardData('#{artist}', '#{songTitle}', '#{chart.name}', #{i+1})")=i+1
 				- else
 					//- Need to handle the case where the soundloud ID doesnt exist here. I suspect something like "We're sorry, watch this on youtube?" For now do nothing
 					.cover(onClick="", onmouseover="hovercardData('#{artist}', '#{songTitle}', '#{chart.name}', #{i+1})")=i+1

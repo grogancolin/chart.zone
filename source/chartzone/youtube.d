@@ -155,11 +155,11 @@ public void updateYoutubeCredentials(YoutubeCredentials old, YoutubeCredentials 
 /**
  * Returns a JSON object containing the result from youtube.
  */
-public string searchFor(string name, string regionCode="ie", string orderBy="relevance", string type="video"){
+public Json searchFor(string name, string regionCode="ie", string orderBy="relevance", string type="video"){
 	logInfo("Searching youtube for: %s", name);
 
 	// construct the url to send
-	string url = "https://www.googleapis.com/youtube/v3/search?part=id&order=$ORDERBY$&q=$SEARCHFOR$&regionCode=$regionCode$&type=$TYPE$&key=$PUBLIC_API_KEY$"
+	string url = "https://www.googleapis.com/youtube/v3/search?part=id,snippet&order=$ORDERBY$&q=$SEARCHFOR$&regionCode=$regionCode$&type=$TYPE$&key=$PUBLIC_API_KEY$"
             .replaceMap(
             ["$ORDERBY$" : orderBy,
             "$SEARCHFOR$" : name,
@@ -171,13 +171,10 @@ public string searchFor(string name, string regionCode="ie", string orderBy="rel
 	logDebug("Youtube search URL: %s", url);
 	auto response = parseJsonString(requestHTTP(url, (scope req){}).bodyReader.readAllUTF8);
 	logDebug(__PRETTY_FUNCTION__ ~ " - Response: %s", response);
-	//return response.parseJsonString;
-    //^^^^^Above can be used later when/if we find a better way of picking the correct song
-    //Untill the just return the top song in the lists ID
-    return response.items[0].id.videoId.to!string;
+    return response;
 }
 
-public string searchFor(SongEntry song, string regionCode="ie", string orderBy="relevance", string type="video"){
+public Json searchFor(SongEntry song, string regionCode="ie", string orderBy="relevance", string type="video"){
         string songname = song.songname;
         string artist;
         if(songname.canFind(",")){
@@ -187,7 +184,7 @@ public string searchFor(SongEntry song, string regionCode="ie", string orderBy="
                 artist = artist[0..artist.indexOf(",")];
         }
         return searchFor(songname ~ " " ~ artist, regionCode, orderBy, type);
-        
+
 }
 
 /**
@@ -221,16 +218,6 @@ public Json addVideoToPlaylist(string playlistId, string videoId){
 		"$PLAYLISTID$" : playlistId,
 		"$VIDEOID$" : videoId
 	]));
-
-/*    Json obj = Json.emptyObject;
-    obj.snippet = Json.emptyObject;
-    obj.snippet.playlistId = playlistId;
-    obj.snippet.resourceId = Json.emptyObject;
-    obj.snippet.resourceId.kind = "youtube#video";
-    obj.snippet.resourceId.videoId = videoId;
-    obj.status = Json.emptyObject;
-    obj.status.privacyStatus = "public";
-    obj.kind = "youtube#playlistItem";*/
 
 	logDebug("addVideoToPlaylist payload: %s", testObj);
     auto response = requestHTTP(url, (scope req){
@@ -274,17 +261,18 @@ public string createPlaylist(string playlistName){
 
 /**
  * Creates a playlist from a ChartEntry object
+ * TODO add fix for iterating over the 5 songs incase
  * */
 public string createPlaylist(ChartEntry chart){
 	logInfo("Creating new playlist with chart: %s", chart.name);
 	string playlistId = createPlaylist(chart.name.getYoutubePlaylistTitle);
 	foreach(song; chart.songs){
-		if(song.youtubeid == "unknown-id"){
+		if(song.youtubeIds[0] == "unknown-id"){
 			logInfo("Creating playlist -> Skipping: %s", song.songname);
 			continue;
 		}
 		logDebug("Creating playlist -> Adding: %s", song.songname);
-		playlistId.addVideoToPlaylist(song.youtubeid);
+		playlistId.addVideoToPlaylist(song.youtubeIds[0]);
 	}
 	return playlistId;
 

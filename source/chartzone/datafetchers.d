@@ -99,12 +99,14 @@ public ChartEntry getChart_BBCTop40(){
 		//Add song to playlist
 		//addVideoToPlaylist(playListId, videoId);
 		songs ~= SongEntry(
-			ele[1].innerHTML.htmlEntitiesDecode,
-			ele[0].innerHTML.htmlEntitiesDecode,
-			"unknown-id",
+			ele[1].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+			ele[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+			[],//Youtube ids
+			[],//Youtube img urls
 			i++,
 			["BBCTop40", "Pop"],
-			"unknown-url"
+			[],//soundcloud ids
+			[]//soundcloud image urls
 			);
 	}
 
@@ -144,12 +146,14 @@ public ChartEntry getChart_BBCTop40Indie(){
 		//Add song to playlist
 		//addVideoToPlaylist(playListId, videoId);
 		songs ~= SongEntry(
-		ele[1].innerHTML.htmlEntitiesDecode,
-		ele[0].innerHTML.htmlEntitiesDecode,
-		"unknown-id",
+		ele[1].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+		ele[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+		[],//Youtube ids
+		[],//Youtube img urls
 		i++,
 		["BBCTop40Indie", "Indie"],
-		"unknown-url"
+		[],//soundcloud ids
+		[]//soundcloud image urls
 		);
 	}
 
@@ -190,12 +194,14 @@ public ChartEntry getChart_BBCTop40Dance(){
 	foreach(ele; artist_track){
 
 		songs ~= SongEntry(
-			ele[1].innerHTML.htmlEntitiesDecode,
-			ele[0].innerHTML.htmlEntitiesDecode,
-			"unknown-id",
+			ele[1].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+			ele[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+			[],//Youtube ids
+			[],//Youtube img urls
 			i++,
 			["BBCTop40Dance", "Dance"],
-			"unknown-url"
+			[],//soundcloud ids
+			[]//soundcloud image urls
 			);
 	}
 	return ChartEntry(
@@ -228,12 +234,14 @@ public ChartEntry getChart_BBCTop40Rock(){
 	foreach(ele; artist_track){
 
 		songs ~= SongEntry(
-			ele[1].innerHTML.htmlEntitiesDecode,
-		ele[0].innerHTML.htmlEntitiesDecode,
-		"unknown-id",
+		ele[1].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+		ele[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+		[],//Youtube ids
+		[],//Youtube img urls
 		i++,
 		["BBCTop40Rock", "Rock"],
-		"unknown-url"
+		[],//soundcloud ids
+		[]//soundcloud image urls
 		);
 	}
 	return ChartEntry(
@@ -281,12 +289,14 @@ public ChartEntry getChart_BillboardTop25Rock(){
 
 			// append a new song object to songs[]
 			songs ~= SongEntry(
-				songTitle.htmlEntitiesDecode,
-				artist.htmlEntitiesDecode,
-				"unknown-id",
+				songTitle.htmlEntitiesDecode.removeExtraSpaces,
+				artist.htmlEntitiesDecode.removeExtraSpaces,
+				[],//Youtube ids
+				[],//Youtube img urls
 				position.to!uint,
 				["BillboardTop25Rock", "Rock"],
-				"unknown-url"
+				[],//soundcloud ids
+				[]//soundcloud image urls
 			);
 		}
 	}
@@ -347,12 +357,14 @@ public ChartEntry getChart_BillboardTop100(){
 
 			// append a new song object to songs[]
 			songs ~= SongEntry(
-					songTitle.htmlEntitiesDecode,
-					artist.htmlEntitiesDecode,
-					"unknown-id",
+					songTitle.htmlEntitiesDecode.removeExtraSpaces,
+					artist.htmlEntitiesDecode.removeExtraSpaces,
+					[],//Youtube ids
+					[],//Youtube img urls
 					position.to!uint,
 				["BillboardTop100", "Pop"],
-				"unknown-url"
+				[],//soundcloud ids
+				[]//soundcloud image urls
 				);
 		}
 	}
@@ -391,12 +403,14 @@ public ChartEntry getChart_ItunesTop100(){
 
     	if(songTitle != "" && artist != ""){
             songs ~= SongEntry(
-					songTitle.htmlEntitiesDecode,
-					artist.htmlEntitiesDecode,
-					"unknown-id",
+					songTitle.htmlEntitiesDecode.removeExtraSpaces,
+					artist.htmlEntitiesDecode.removeExtraSpaces,
+					[],//Youtube ids
+					[],//Youtube img urls
 					i++,
 					["ItunesTop100", "Pop"],
-					"unknown-url"
+					[],//soundcloud ids
+					[]//soundcloud image urls
 				);
          }
     }
@@ -436,13 +450,14 @@ public ChartEntry getChart_IrishTop100(){
 
     	if(songTitle != "" && artist != ""){
             songs ~= SongEntry(
-					songTitle.htmlEntitiesDecode,
-					artist.htmlEntitiesDecode,
-					"unknown-id",
+					songTitle.htmlEntitiesDecode.removeExtraSpaces,
+					artist.htmlEntitiesDecode.removeExtraSpaces,
+					[],//Youtube ids
+					[],//Youtube img urls
 					i++,
 					["IrishTop100", "pop"],
-					"unknown-url",
-					"unknown-url"
+					[],//soundcloud ids
+					[]//soundcloud image urls
 				);
          }
     }

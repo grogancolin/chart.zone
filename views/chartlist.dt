@@ -33,12 +33,12 @@ block body
 								.box
 									style(media="screen", type="text/css")
 										#{"#" ~ val.name}{
-											background: url('#{val.songs[0].soundcloudArtwork}'),
-														url('#{val.songs[1].soundcloudArtwork}'),
-														url('#{val.songs[2].soundcloudArtwork}'),
-														url('#{val.songs[3].soundcloudArtwork}'),
-														url('#{val.songs[4].soundcloudArtwork}'),
-														url('#{val.songs[5].soundcloudArtwork}');
+											background: url('#{val.songs[0].soundcloudImages[0]}'),
+														url('#{val.songs[1].soundcloudImages[0]}'),
+														url('#{val.songs[2].soundcloudImages[0]}'),
+														url('#{val.songs[3].soundcloudImages[0]}'),
+														url('#{val.songs[4].soundcloudImages[0]}'),
+														url('#{val.songs[5].soundcloudImages[0]}');
 											background-size: 33.3333% 50%;
 											background-position: left top, center top, right top,
 																 left bottom, center bottom, right bottom;
@@ -48,10 +48,6 @@ block body
 										p #{val.name}
 											br
 											|(#{val.country.toUpper})
-										ul(id="#{val.name}", style="display: none;")
-											li ../images/#{val.country.toLower}
-											- foreach(x; 0 .. 5)
-												li #{val.songs[x].soundcloudArtwork}
 
 			#moviesList(style="display:none;")
 				.column1

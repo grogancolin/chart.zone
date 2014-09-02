@@ -114,16 +114,17 @@ public void main(string[] args){
 			logInfo("Searching for chart: %s", chart.name);
 			foreach(ref song; chart.songs){
 
-				//YOUTUBE STUFF
-				string youtubeId = searchFor(song);
-				logInfo("YoutubeID : %s_%s - %s", song.songname, song.artist, youtubeId);
-				song.setYoutubeId(youtubeId);
+				//YOUTUBE STUFF    //.items[0].id.videoId.to!string
+				Json youtubeObj = searchFor(song);
+				logInfo("YoutubeID : %s_%s - First ID: %s", song.songname, song.artist, youtubeObj.items[0].id.videoId.to!string);
+				song.setYoutubeIds(youtubeObj);
+				song.setYoutubeImages(youtubeObj);
 
 				//SOUNDCLOUD STUFF
-				Json soundcloudObj = searchSoundcloud(song);
-				logInfo("Soundcloud Artist_Title : %s_%s - URL:  %s - Artwork: %s", song.songname, song.artist, soundcloudObj.uri.to!string, soundcloudObj.artwork_url.to!string);
-				song.setSoundcloudUrl(soundcloudObj.uri.to!string);
-				song.setSoundcloudArtwork(soundcloudObj.artwork_url.to!string);
+				Json[] soundcloudObj = searchSoundcloud(song);
+				logInfo("Soundcloud Artist_Title : %s_%s - URL:  %s - Artwork: %s", song.songname, song.artist, soundcloudObj[0].uri.to!string, soundcloudObj[0].artwork_url.to!string);
+				song.setSoundcloudUrls(soundcloudObj);
+				song.setSoundcloudImages(soundcloudObj);
 			}
 		}
 
@@ -161,6 +162,7 @@ public void main(string[] args){
         logInfo("Starting server...");
 
         auto settings = new HTTPServerSettings;
+        settings.useCompressionIfPossible = true;
 		settings.port = chartzoneSettings.port;
         //settings.port = cli["--port"].toString().to!ushort;
         settings.bindAddresses = ["::1", "127.0.0.1"];

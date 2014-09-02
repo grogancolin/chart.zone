@@ -1,6 +1,8 @@
 module chartzone.utils;
 	import std.datetime;
 	import vibe.vibe;
+    import std.string;
+    import std.regex;
 
 public string replaceMap(string str, string[string] keys){
     import std.array;
@@ -27,4 +29,8 @@ public string getYoutubePlaylistTitle(string title){
                          SysTime(Clock.currStdTime()).year);
 
 	return title;
+}
+
+public string removeExtraSpaces(string str){
+    return str.replace(regex(r"\s{2,}"), " ");
 }
