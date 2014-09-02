@@ -273,18 +273,28 @@ public ChartEntry getChart_BillboardTop25Rock(){
 		foreach(songEntry; chartListing[0].getElementsByTagName(`article`)){
 			string position = songEntry
 				.getElementsByTagName(`a`)[0] // the first <a is the position
-			.getAttribute("id")
-				.strip()	//remove any pre and post whitespace
-					.replace("rank_", "");
+				.getAttribute("id")
+				.strip()//remove any pre and post whitespace
+				.replace("rank_", "");
+
 
 			string artist = songEntry
 				.getElementsByTagName(`a`)[1] // the second <a> is the artist
-			.getAttribute("title")
+				.getAttribute("title")
 				.strip();
+
+			//Sometimes the artist name isn't in an a link so do this instead
+			if(artist == ""){
+				artist = songEntry
+					.getElementsByTagName(`p`)[0]
+					.innerText // the first p but it may include some
+					.strip();
+					logInfo("ARTIST NAME: %s", artist);
+			}
 
 			string songTitle = songEntry
 				.getElementsByTagName(`h1`)[0] // the first h1 is the song title
-			.innerHTML()
+				.innerHTML()
 				.chomp();
 
 			// append a new song object to songs[]
@@ -349,6 +359,15 @@ public ChartEntry getChart_BillboardTop100(){
 				.getElementsByTagName(`a`)[1] // the second <a> is the artist
 				.getAttribute("title")
 				.strip();
+
+			//Sometimes the artist name isn't in an a link so do this instead
+			if(artist == ""){
+				artist = songEntry
+					.getElementsByTagName(`p`)[0]
+					.innerText // the first p but it may include some
+					.strip();
+					logInfo("ARTIST NAME: %s", artist);
+			}
 
 			string songTitle = songEntry
 				.getElementsByTagName(`h1`)[0] // the first h1 is the song title

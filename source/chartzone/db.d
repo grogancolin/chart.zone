@@ -182,6 +182,10 @@ public struct SongEntry {
 		}
 	}
 
+	@property setYoutubeIdsEmpty(){
+		this.youtubeIds ~= "unknown-id";
+	}
+
 	@property setYoutubeImages(Json obj){
 		foreach(item; obj.items){
 			try{
@@ -191,6 +195,10 @@ public struct SongEntry {
 				this.youtubeImages ~= "unknown-url";
 			}
 		}
+	}
+
+	@property setYoutubeImagesEmpty(){
+		this.youtubeImages ~= "unknown-url";
 	}
 
 	@property setSoundcloudUrls(Json[] objs){
@@ -204,15 +212,27 @@ public struct SongEntry {
 		}
 	}
 
+	@property setSoundcloudUrlsEmpty(){
+		this.soundcloudUrls ~= "unknown-url";
+	}
+
 	@property setSoundcloudImages(Json[] objs){
+		if(objs.length)
 		for(uint i = 0; i<objs.length; i++){
 			try{
-				this.soundcloudImages ~= objs[i].artwork_url.to!string;
+				if(objs[i].artwork_url.to!string != "null")
+					this.soundcloudImages ~= objs[i].artwork_url.to!string;
+				else
+					this.soundcloudImages ~= "unknown-url";
 			}
 			catch(Exception e){
 				this.soundcloudImages ~= "unknown-url";
 			}
 		}
+	}
+
+	@property setSoundcloudImagesEmpty(){
+		this.soundcloudImages ~= "unknown-url";
 	}
 
 }

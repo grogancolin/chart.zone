@@ -116,15 +116,33 @@ public void main(string[] args){
 
 				//YOUTUBE STUFF    //.items[0].id.videoId.to!string
 				Json youtubeObj = searchFor(song);
-				logInfo("YoutubeID : %s_%s - First ID: %s", song.songname, song.artist, youtubeObj.items[0].id.videoId.to!string);
-				song.setYoutubeIds(youtubeObj);
-				song.setYoutubeImages(youtubeObj);
+				//If youtube returns results
+				if(youtubeObj.items.length>0){
+					logInfo("YoutubeID : %s_%s - First ID: %s", song.songname, song.artist, youtubeObj.items[0].id.videoId.to!string);
+					song.setYoutubeIds(youtubeObj);
+					song.setYoutubeImages(youtubeObj);
+				}
+				//else put unknow url/id in db
+				else{
+					logInfo("Youtube Response contained no results");
+					song.setYoutubeIdsEmpty;
+					song.setYoutubeImagesEmpty;
+				}
 
 				//SOUNDCLOUD STUFF
 				Json[] soundcloudObj = searchSoundcloud(song);
-				logInfo("Soundcloud Artist_Title : %s_%s - URL:  %s - Artwork: %s", song.songname, song.artist, soundcloudObj[0].uri.to!string, soundcloudObj[0].artwork_url.to!string);
-				song.setSoundcloudUrls(soundcloudObj);
-				song.setSoundcloudImages(soundcloudObj);
+				//If soundcloud returns results
+				if(soundcloudObj.length>0){
+					logInfo("Soundcloud Artist_Title : %s_%s - URL:  %s - Artwork: %s", song.songname, song.artist, soundcloudObj[0].uri.to!string, soundcloudObj[0].artwork_url.to!string);
+					song.setSoundcloudUrls(soundcloudObj);
+					song.setSoundcloudImages(soundcloudObj);
+				}
+				//If no results just stick in an unknown-url
+				else{
+					logInfo("Soundcloud Response contained no results");
+					song.setSoundcloudUrlsEmpty;
+					song.setSoundcloudImagesEmpty;
+				}
 			}
 		}
 
