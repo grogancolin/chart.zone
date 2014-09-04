@@ -24,37 +24,64 @@ public class ChartzoneDB{
 private:
 	MongoClient _client;
 	MongoDatabase _db;
-	MongoCollection _collection;
-	private string[string] _all_collections;
+	MongoCollection 
+        _charts_coll,
+        _youtube_coll,
+        _youtubeCredentials_coll,
+        _messages_coll
+        ;
 public:
-	public this(string dbstr, string collstr){
+	public this(string dbstr){
+        auto allCols = settings.dbCollections;
 		_client = connectMongoDB("127.0.0.1");
 		_db = client.getDatabase(dbstr);
-		_collection = db[collstr];
-		_all_collections = settings.dbCollections;
+        _charts_coll = db[allCols["charts"]];
+        _youtube_coll = db[allCols["youtube"]];
+        _youtubeCredentials_coll = db[allCols["youtubeCredentials"]];
+        _messages_coll = db[allCols["messages"]];
 	}
 
 	/*
 	Getters for the db interface.
 	No setters as these shouldnt need to be changed once set
 	*/
-	public @property auto collection(){
-		return _collection;
-	}
 	public @property auto db(){
 		return _db;
 	}
-	public @property auto client(){
+	public @property auto client() {
 		return _client;
 	}
+    public @property auto charts()
+    {
+        return _charts_coll;
+    }
+
+    public @property auto youtube() {
+        return _youtube_coll;
+    }
+
+    public @property auto youtubeCredentials() {
+        return _youtubeCredentials_coll;
+    }
+
+    public @property auto messages() {
+        return _messages_coll;
+    }
 }
 
-/*
-	Adds a chart entry to the database
-	// Call with db.add(chartEntry);
-*/
-public void add(ChartzoneDB db, ChartEntry entry){
-	db.collection.insert(entry);
+
+public void add(Type)(ChartzoneDB db, Type entry){
+    static if(Type.stringof == "ChartEntry"){
+        db.charts.insert(entry);
+    } else static if (Type.stringof =="MessageEntry"){
+        db.messages.insert(entry);
+    } else static if(Type.stringof == "YoutubeToken"){
+        db.youtube.insert(entry);
+    } else static if(Type.stringof == "YoutubeCredentials"){
+        db.youtubeCredentials.insert(entry);
+    } else{
+        static assert(false, "Error: " ~ Type.stringof ~ " is not supported");
+    }
 }
 
 /**
@@ -74,9 +101,34 @@ public void add(ChartzoneDB db, ChartEntry entry){
 	db.update(bbcTop40Chart, bbcTop40Chart);
 	TODO: NEED TO TEST
 */
-public void update(ChartzoneDB db, ChartEntry oldentry, ChartEntry newentry){
+public void update(Type)(ChartzoneDB db, Type oldentry, Type newentry){
 	// should update the entry with oldID to be the new entry
-	db.collection.update(["name" : Bson(oldentry.name), "date" : Bson(oldentry.date)], newentry, UpdateFlags.None);
+    static if(Type.stringof == "ChartEntry"){
+        db.charts.update(oldentry, newentry, UpdateFlags.None);
+    } else if(Type.stringof =="MessageEntry"){
+        db.messages.update(oldentry, newentry, UpdateFlags.None);
+    } else if(Type.stringof == "YoutubeEntry"){
+        db.youtube.update(oldentry, newentry, UpdateFlags.None);
+    } else if(Type.stringof == "YoutubeCredentials"){
+        db.youtubeCredentials.update(oldentry, newentry, UpdateFlags.None);
+    } else{
+        static assert(false, "Error: " ~ Type.stringof ~ " is not supported");
+    }
+
+}
+public void update(Type)(ChartzoneDB db, Json selector, Type newentry){
+	// should update the entry with oldID to be the new entry
+    static if(Type.stringof == "ChartEntry"){
+        db.charts.update(selector, newentry, UpdateFlags.None);
+    } else if(Type.stringof =="MessageEntry"){
+        db.messages.update(selector, newentry, UpdateFlags.None);
+    } else if(Type.stringof == "YoutubeEntry"){
+        db.youtube.update(selector, newentry, UpdateFlags.None);
+    } else if(Type.stringof == "YoutubeCredentials"){
+        db.youtubeCredentials.update(selector, newentry, UpdateFlags.None);
+    } else{
+        static assert(false, "Error: " ~ Type.stringof ~ " is not supported");
+    }
 }
 /**
 	Updates the chartentry with ID = oldID with the new chart entry
@@ -95,22 +147,14 @@ public void update(ChartzoneDB db, ChartEntry oldentry, ChartEntry newentry){
 	db.update(bbcTop40Chart.name, bbcTop40Chart.date, bbcTop40Chart);
 	TODO: NEED TO TEST
 */
-public void update(ChartzoneDB db, string oldName, ulong oldTimestamp, ChartEntry newentry){
-	// should update the entry with oldID to be the new entry
-	db.collection.update(["name" : Bson(oldName), "date" : Bson(oldTimestamp)], newentry, UpdateFlags.None);
-}
 
-public void addMessage(ChartzoneDB db, MessageEntry msg){
-	writefln("%s", db._all_collections);
-	db._db[db._all_collections["messages"]].insert(msg);
-}
 /**
  Gets a ChartEntry[] containing all the ChartEntries in the DB
 */
 public ChartEntry[] getAllCharts(ChartzoneDB db){
 	logDebug("Getting all charts...");
 	ChartEntry[] charts;
-	auto cursor = db.collection.find().sort(["date" : -1]); // get all the chart entries
+	auto cursor = db._charts_coll.find().sort(["date" : -1]); // get all the chart entries
 	foreach(doc; cursor){
 		ChartEntry chart;
 		chart.deserializeBson(doc);
@@ -147,7 +191,7 @@ public ChartEntry[] getLatestCharts(ChartzoneDB db){
 public ChartEntry getLatestChart(ChartzoneDB db, string chartName){
 	logDebug("Getting latest chart: %s", chartName);
 	ChartEntry chart;
-	auto cursor = db.collection.find(["name" : chartName]).sort(["date" : -1]);
+	auto cursor = db._charts_coll.find(["name" : chartName]).sort(["date" : -1]);
 	if(cursor.empty){
 		logError("Chart %s not in DB", chartName);
 		throw new NoEntryForChartException("Nothing for chart %s was found in DB".format(chartName));

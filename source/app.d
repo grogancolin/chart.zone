@@ -86,8 +86,7 @@ public void main(string[] args){
 
         // go ahead and call the updater lib
         db = new ChartzoneDB(
-				chartzoneSettings.dbName,
-				chartzoneSettings.dbCollections["charts"]);
+				chartzoneSettings.dbName);
 
 		string[] chartsToUpdate = cli["CHART"].asList;
 		logInfo("Received update command, Updating charts: %s", chartsToUpdate);
@@ -193,8 +192,7 @@ public void main(string[] args){
         router.get("*", serveStaticFiles("public/"));
 
         db = new ChartzoneDB(
-                chartzoneSettings.dbName,
-                chartzoneSettings.dbCollections["charts"]
+                chartzoneSettings.dbName
             );
 
         listenHTTP(settings, router);
@@ -260,6 +258,6 @@ void processContactForm(HTTPServerRequest req, HTTPServerResponse res){
 	         req.form["name"], req.form["email"], req.form["message"]);
 
 	MessageEntry msg = MessageEntry(req.form["name"], req.form["email"], req.form["message"]);
-	db.addMessage(msg);
+	db.add(msg);
 	res.writeBody("Success!");
 }
