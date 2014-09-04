@@ -445,13 +445,17 @@ public ChartEntry getChart_ItunesTop100(){
 public ChartEntry getChart_IrishTop100(){
 	//If you get an error check this out!!!
 	//This might change not sure the ASP site thing wasn't working
-    string irishTop100 = getDataFromURL("http://www.chart-track.co.uk/index.jsp?c=p/musicvideo/music/latest/index_test.jsp&ct=240001");
-	logInfo("%s", irishTop100);
+    //string irishTop100 = cast(string) getDataFromURL("http://www.chart-track.co.uk/index.jsp?c=p/musicvideo/music/latest/index_test.jsp&ct=240001").filter!(a=> a < 128).array;
+    ubyte[] data = requestHTTP("http://www.chart-track.co.uk/index.jsp?c=p/musicvideo/music/latest/index_test.jsp&ct=240001",
+			(scope req){}
+		).bodyReader.readAll().filter!(a => a < 128).array;
+
+    string irishTop100 = cast(string)data;
     Document htmlObj = new Document();
 	htmlObj.parse(irishTop100.htmlEntitiesDecode);
 	auto chartListing = htmlObj.getElementsByTagName(`table`);
-	assert(chartListing.length >= 1,
-			"Error parsing response from Irish Top 100. Error: couldnt find at least one tbody tag");
+	if(chartListing.length < 1)
+			throw new ChartFetcherException("Error parsing response from Irish Top 100. Error: couldnt find at least one tbody tag");
 
 	SongEntry[] songs;
     uint i = 1;
@@ -460,7 +464,6 @@ public ChartEntry getChart_IrishTop100(){
     foreach(songEntry; chartListing[3].getElementsByTagName(`tr`)){
     	if(isFirst){
     		isFirst = false;
-    		logInfo("HEHEHEE");
     		continue;
     	}
     	string songTitle = "", artist = "";
