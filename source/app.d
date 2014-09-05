@@ -58,15 +58,6 @@ shared static this(){
   */
 public void main(string[] args){
 
-    /*
-     * Print message on exit.
-     * Some things to add here maybe, is a list of updates that happened to the system over the course of its life.
-     * May help in debugging
-     */
-    scope(exit){
-            //writefln("Shutting down.");
-    }
-
 	// Parse command line options
     auto cli = docopt.docopt(doc, args[1..$], true, "0.01alpha");
 	// parse runtime settings
@@ -77,8 +68,9 @@ public void main(string[] args){
 	chartzoneSettings = parseSettingsFile(cli["--settings"].toString);
 
 	// pass runtime settings to other modules
-	setupYoutubeModule(chartzoneSettings);
 	setupDBModule(chartzoneSettings);
+	setupYoutubeModule(chartzoneSettings);
+
 
 	logInfo("Command line args passed: %s", cli);
 
@@ -202,21 +194,6 @@ public void main(string[] args){
         runEventLoop();
     }
 }
-
-/*shared static this()
-{
-	auto settings = new HTTPServerSettings;
-	settings.port = 8080;
-	settings.bindAddresses = ["::1", "127.0.0.1"];
-
-	auto router = new URLRouter;
-	router.get("/test", &hello);
-	router.get("/chartlist", &chartlist);
-
-	db = new ChartzoneDB("chartzone", "charts");
-
-	listenHTTP(settings, router);
-}*/
 
 void chartlist(HTTPServerRequest req, HTTPServerResponse res)
 {

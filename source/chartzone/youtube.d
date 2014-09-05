@@ -28,9 +28,8 @@ public void setupYoutubeModule(ChartzoneSettings settings){
 	chartzoneSettings = settings;
 
 	// get the youtube token from the DB.
-	auto db = new YoutubeDB(chartzoneSettings.dbName, chartzoneSettings.dbCollections["youtube"]);
-    auto credDb = new YoutubeDB(chartzoneSettings.dbName, chartzoneSettings.dbCollections["youtubeCredentials"]);
-    auto credObj = credDb.collection.find();
+	auto db = new ChartzoneDB(chartzoneSettings.dbName);
+	auto credObj =  db.youtubeCredentials.find();
     if(credObj.empty()){
     	string line;
     	bool confirmation = false;
@@ -65,16 +64,16 @@ public void setupYoutubeModule(ChartzoneSettings settings){
     	} while(confirmation ==false);
 
     	credentials = YoutubeCredentials(_refreshToken, _clientId, _clientSecret, _publicApiKey);
-    	credDb.collection.insert(credentials);
+    	db.youtubeCredentials.insert(credentials);
 
     } else{
     	credentials.deserializeBson(credObj.front());
     }
 
-	auto data = db.collection.find().sort(["timestamp" : -1]);
+	auto data = db.youtube.find().sort(["timestamp" : -1]);
 	if(data.empty){
 		youtubeToken = getRefreshToken;
-		db.collection.insert(youtubeToken);
+		db.youtube.insert(youtubeToken);
 		return;
 	}
 	auto bsonObj = data.front;
@@ -85,20 +84,23 @@ public void setupYoutubeModule(ChartzoneSettings settings){
  * Function checks if we need to update the current token, and if so, goes and does it
  */
 public void checkAndUpdateYoutubeToken(){
-	// connect to db
-	auto db = new YoutubeDB(chartzoneSettings.dbName, chartzoneSettings.dbCollections["youtube"]);
-	//writefln("Checking if token is expired: %s", youtubeToken.isExpired);
+	auto db = new ChartzoneDB(chartzoneSettings.dbName);
 	if(youtubeToken.isExpired){
-        debug writefln("Token is expired. Getting a new one: %s", youtubeToken);
+        logInfo("Token is expired. Getting a new one: %s", youtubeToken);
 		YoutubeToken oldTok = youtubeToken;
 		youtubeToken = getRefreshToken;
-		db.collection.update(
+		/+db.youtube.update(
 			[
 				"access_token" : Bson(oldTok.access_token),
 				"timestamp" : Bson(oldTok.timestamp)
 			],
 			youtubeToken,
-			UpdateFlags.None);
+			UpdateFlags.None); +/
+			db.update([
+				"access_token" : Bson(oldTok.access_token),
+				"timestamp" : Bson(oldTok.timestamp)
+			], youtubeToken);
+
 	}
 }
 
@@ -126,7 +128,6 @@ public YoutubeToken getRefreshToken(){
             req.contentType = "application/x-www-form-urlencoded";
             req.writeBody(cast(ubyte[])postBody);
         }).bodyReader.readAllUTF8().parseJsonString;
-	logDebug(__PRETTY_FUNCTION__ ~ " - Response: %s", response);
 
     return YoutubeToken(response["access_token"].get!string, response["expires_in"].get!long, response["token_type"].get!string );
 }
@@ -135,16 +136,16 @@ public YoutubeToken getRefreshToken(){
  * Update youtube credentials
  */
 public void updateYoutubeCredentials(YoutubeCredentials old, YoutubeCredentials newCredentials){
-	auto db = new YoutubeDB(chartzoneSettings.dbName, chartzoneSettings.dbCollections["youtubeCredentials"]);
-    db.collection.update(
+	auto db = new ChartzoneDB(chartzoneSettings.dbName);
+    db.update(
         [   "refreshToken" : Bson(old.refreshToken),
             "clientID" : Bson(old.clientID),
             "clientSecret" : Bson(old.clientSecret)
 		],
-            newCredentials, UpdateFlags.None);
+        newCredentials);
 
     YoutubeCredentials testObj;
-    testObj.deserializeBson(db.collection.find().front);
+    testObj.deserializeBson(db.youtubeCredentials.find().front);
 	if(newCredentials == testObj){
 		logError("Couldnt update youtube credentials. Quitting.");
 		throw new Exception("Couldnt update youtube credentials...");
@@ -170,7 +171,6 @@ public Json searchFor(string name, string regionCode="ie", string orderBy="relev
 
 	logDebug("Youtube search URL: %s", url);
 	auto response = parseJsonString(requestHTTP(url, (scope req){}).bodyReader.readAllUTF8);
-	logDebug(__PRETTY_FUNCTION__ ~ " - Response: %s", response);
     return response;
 }
 
@@ -240,7 +240,7 @@ public string createPlaylist(string playlistName){
         .replaceMap(["$PART$" : "snippet,status",
                      "$ACCESS_TOKEN$" : youtubeToken.access_token]);
 
-    logInfo("Creating playlist with url: %s", url);
+    logDebug("Creating playlist with url: %s", url);
     auto response = requestHTTP(url, (scope req){
             req.method = HTTPMethod.POST;
             req.writeJsonBody(["snippet": ["title" : playlistName], "status" : ["privacyStatus" : "public"]]);
@@ -264,7 +264,6 @@ public string createPlaylist(string playlistName){
  * TODO add fix for iterating over the 5 songs incase
  * */
 public string createPlaylist(ChartEntry chart){
-	logInfo("Creating new playlist with chart: %s", chart.name);
 	string playlistId = createPlaylist(chart.name.getYoutubePlaylistTitle);
 	foreach(song; chart.songs){
 		if(song.youtubeIds[0] == "unknown-id"){
@@ -278,70 +277,3 @@ public string createPlaylist(ChartEntry chart){
 
 }
 
-/*
- *  Data structure that holds information on youtube api token
- */
-public struct YoutubeToken{
-    string access_token;
-    ulong timestamp; // timestamp this token was created (in hnsecs, i.e 100 nano seconds)
-    ulong expires_in; // milliseconds
-    string token_type;
-
-    /**
-     *  Constructs this chart entry
-     */
-    public this(string access_token, ulong expires_in, string token_type){
-		this.access_token = access_token;
-        this.token_type = token_type;
-        this.expires_in = expires_in;
-        this.timestamp = Clock.currStdTime().stdTimeToUnixTime;
-    }
-
-    @property bool isExpired(){
-		long currTime = Clock.currStdTime().stdTimeToUnixTime();
-		if(currTime < (this.timestamp + this.expires_in)){
-			return false;
-		}
-		return true;
-    }
-}
-
-/**
- * Data structure that holds long term youtube credentials
- */
-public struct YoutubeCredentials{
-    string refreshToken;    // 1/FLynZRsiKstzpO3m7aZ8EueSXw9hnNvtWTk0BiNvuOY
-    string clientID;        // 1056916856143-7p19rpdd9ktf8phghf7ol10thbjuuaug.apps.googleusercontent.com
-    string clientSecret;    // 5DnsSEMr-rn44Kh5sY8nYW-W
-    string publicApiKey;    // AIzaSyBVIHtXsGgZi5epY7dunDHgX1fZKTgQ2Uw
-}
-
-/**
- * Class handles connections to the youtube mongo DB
- */
-public class YoutubeDB{
-private:
-    MongoClient _client;
-    MongoDatabase _db;
-    MongoCollection _collection;
-public:
-    public this(string dbstr, string collstr){
-        _client = connectMongoDB("127.0.0.1");
-        _db = client.getDatabase(dbstr);
-        _collection = db[collstr];
-    }
-
-    /*
-    Getters for the db interface.
-    No setters as these shouldnt need to be changed once set
-    */
-    public @property auto collection(){
-        return _collection;
-    }
-    public @property auto db(){
-        return _db;
-    }
-    public @property auto client(){
-        return _client;
-    }
-}

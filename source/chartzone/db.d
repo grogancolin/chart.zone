@@ -51,8 +51,7 @@ public:
 	public @property auto client() {
 		return _client;
 	}
-    public @property auto charts()
-    {
+    public @property auto charts() {
         return _charts_coll;
     }
 
@@ -105,26 +104,26 @@ public void update(Type)(ChartzoneDB db, Type oldentry, Type newentry){
 	// should update the entry with oldID to be the new entry
     static if(Type.stringof == "ChartEntry"){
         db.charts.update(oldentry, newentry, UpdateFlags.None);
-    } else if(Type.stringof =="MessageEntry"){
+    } else static if(Type.stringof =="MessageEntry"){
         db.messages.update(oldentry, newentry, UpdateFlags.None);
-    } else if(Type.stringof == "YoutubeEntry"){
+	} else static if(Type.stringof == "YoutubeToken"){
         db.youtube.update(oldentry, newentry, UpdateFlags.None);
-    } else if(Type.stringof == "YoutubeCredentials"){
+	} else static if(Type.stringof == "YoutubeCredentials"){
         db.youtubeCredentials.update(oldentry, newentry, UpdateFlags.None);
     } else{
         static assert(false, "Error: " ~ Type.stringof ~ " is not supported");
     }
 
 }
-public void update(Type)(ChartzoneDB db, Json selector, Type newentry){
+public void update(Type, Sel)(ChartzoneDB db, Sel selector, Type newentry){
 	// should update the entry with oldID to be the new entry
     static if(Type.stringof == "ChartEntry"){
         db.charts.update(selector, newentry, UpdateFlags.None);
-    } else if(Type.stringof =="MessageEntry"){
+	} else static if(Type.stringof =="MessageEntry"){
         db.messages.update(selector, newentry, UpdateFlags.None);
-    } else if(Type.stringof == "YoutubeEntry"){
+	} else static if(Type.stringof == "YoutubeToken"){
         db.youtube.update(selector, newentry, UpdateFlags.None);
-    } else if(Type.stringof == "YoutubeCredentials"){
+	} else static if(Type.stringof == "YoutubeCredentials"){
         db.youtubeCredentials.update(selector, newentry, UpdateFlags.None);
     } else{
         static assert(false, "Error: " ~ Type.stringof ~ " is not supported");
@@ -327,6 +326,45 @@ public struct MessageEntry {
 		this.date = Clock.currStdTime();
 	}
 }
+
+/*
+ *  Data structure that holds information on youtube api token
+ */
+public struct YoutubeToken{
+	string access_token;
+	ulong timestamp; // timestamp this token was created (in hnsecs, i.e 100 nano seconds)
+	ulong expires_in; // milliseconds
+	string token_type;
+	
+	/**
+     *  Constructs this chart entry
+     */
+	public this(string access_token, ulong expires_in, string token_type){
+		this.access_token = access_token;
+		this.token_type = token_type;
+		this.expires_in = expires_in;
+		this.timestamp = Clock.currStdTime().stdTimeToUnixTime;
+	}
+	
+	@property bool isExpired(){
+		long currTime = Clock.currStdTime().stdTimeToUnixTime();
+		if(currTime < (this.timestamp + this.expires_in)){
+			return false;
+		}
+		return true;
+	}
+}
+
+/**
+ * Data structure that holds long term youtube credentials
+ */
+public struct YoutubeCredentials{
+	string refreshToken;    // 1/FLynZRsiKstzpO3m7aZ8EueSXw9hnNvtWTk0BiNvuOY
+	string clientID;        // 1056916856143-7p19rpdd9ktf8phghf7ol10thbjuuaug.apps.googleusercontent.com
+	string clientSecret;    // 5DnsSEMr-rn44Kh5sY8nYW-W
+	string publicApiKey;    // AIzaSyBVIHtXsGgZi5epY7dunDHgX1fZKTgQ2Uw
+}
+
 
 public class DBSearchException : Exception{
 	this(string message, string file = __FILE__, size_t line = __LINE__, Throwable next = null) {

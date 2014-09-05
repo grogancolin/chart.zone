@@ -51,7 +51,7 @@ public class ChartzoneSettings{
 				}
             }
         }
-		logInfo("Settings: %s", serializeToJson(this));
+		logInfo("Parsed settings: %s", serializeToJson(this));
     }
 }
 
@@ -62,7 +62,6 @@ ChartzoneSettings parseSettingsFile(string file){
         //read file as json
         auto data = stripUTF8Bom(cast(string)openFile(file).readAll());
         auto json = parseJson(data);
-		logInfo("parseSettingsFile - Json for parsing: %s", json);
         settings.parseSettings(json);
     }
     return settings;
