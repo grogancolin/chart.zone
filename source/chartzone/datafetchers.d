@@ -41,6 +41,19 @@ string mapFuncNamesToAA(string funcId){
         return toRet;
 }
 
+//Sometime there is no <a> tag so need to get artist name from just the div
+private string getArtistName(Element artistHtml){
+	string artistName;
+	try{
+		artistName = artistHtml.getElementsByTagName(`a`)[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces;
+		logInfo("Artist Name 1 : %s", artistName);
+	}
+	catch(std.exception.RangeError e1 ){
+		artistName = artistHtml.innerHTML.htmlEntitiesDecode.removeExtraSpaces;
+		logInfo("Artist Name 2 : %s", artistName);
+	}
+	return artistName;
+}
 
 shared static this(){
     mixin("chartGetters = [" ~ mapFuncNamesToAA("getChart_") ~ "];");
@@ -95,12 +108,11 @@ public ChartEntry getChart_BBCTop40(){
 	auto artist_track = zip(artistListing, trackListing);
 	uint i=1;
 	foreach(ele; artist_track){
-
 		//Add song to playlist
 		//addVideoToPlaylist(playListId, videoId);
 		songs ~= SongEntry(
 			ele[1].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
-			ele[0].getElementsByTagName(`a`)[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+			getArtistName(ele[0]),
 			[],//Youtube ids
 			[],//Youtube img urls
 			i++,
@@ -116,7 +128,7 @@ public ChartEntry getChart_BBCTop40(){
 
 }
 
-public ChartEntry getChart_BBCTop40Indie(){
+public ChartEntry getChart_BBCTop40Indie() {
 	// read from BBC
 	string url = "http://www.bbc.co.uk/radio1/chart/indiesingles";
 	string bbcTop40 = getDataFromURL(url);
@@ -142,12 +154,11 @@ public ChartEntry getChart_BBCTop40Indie(){
 	auto artist_track = zip(artistListing, trackListing);
 	uint i=1;
 	foreach(ele; artist_track){
-
 		//Add song to playlist
 		//addVideoToPlaylist(playListId, videoId);
 		songs ~= SongEntry(
 		ele[1].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
-		ele[0].getElementsByTagName(`a`)[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+		getArtistName(ele[0]),
 		[],//Youtube ids
 		[],//Youtube img urls
 		i++,
@@ -195,7 +206,7 @@ public ChartEntry getChart_BBCTop40Dance(){
 
 		songs ~= SongEntry(
 			ele[1].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
-			ele[0].getElementsByTagName(`a`)[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+			getArtistName(ele[0]),
 			[],//Youtube ids
 			[],//Youtube img urls
 			i++,
@@ -235,7 +246,7 @@ public ChartEntry getChart_BBCTop40Rock(){
 
 		songs ~= SongEntry(
 		ele[1].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
-		ele[0].getElementsByTagName(`a`)[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+		getArtistName(ele[0]),
 		[],//Youtube ids
 		[],//Youtube img urls
 		i++,
