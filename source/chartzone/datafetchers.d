@@ -100,7 +100,7 @@ public ChartEntry getChart_BBCTop40(){
 		//addVideoToPlaylist(playListId, videoId);
 		songs ~= SongEntry(
 			ele[1].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
-			ele[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+			ele[0].getElementsByTagName(`a`)[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
 			[],//Youtube ids
 			[],//Youtube img urls
 			i++,
@@ -147,7 +147,7 @@ public ChartEntry getChart_BBCTop40Indie(){
 		//addVideoToPlaylist(playListId, videoId);
 		songs ~= SongEntry(
 		ele[1].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
-		ele[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+		ele[0].getElementsByTagName(`a`)[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
 		[],//Youtube ids
 		[],//Youtube img urls
 		i++,
@@ -195,7 +195,7 @@ public ChartEntry getChart_BBCTop40Dance(){
 
 		songs ~= SongEntry(
 			ele[1].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
-			ele[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+			ele[0].getElementsByTagName(`a`)[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
 			[],//Youtube ids
 			[],//Youtube img urls
 			i++,
@@ -235,7 +235,7 @@ public ChartEntry getChart_BBCTop40Rock(){
 
 		songs ~= SongEntry(
 		ele[1].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
-		ele[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
+		ele[0].getElementsByTagName(`a`)[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces,
 		[],//Youtube ids
 		[],//Youtube img urls
 		i++,
