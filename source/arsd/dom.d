@@ -487,6 +487,27 @@ struct ElementCollection {
 		return ec;
 	}
 
+	/// if you slice it, give the underlying array for easy forwarding of the
+	/// collection to range expecting algorithms or looping over.
+	Element[] opSlice() {
+		return elements;
+	}
+
+	/// And input range primitives so we can foreach over this
+	void popFront() {
+		elements = elements[1..$];
+	}
+
+	/// ditto
+	Element front() {
+		return elements[0];
+	}
+
+	/// ditto
+	bool empty() {
+		return !elements.length;
+	}
+
 	/// Forward method calls to each individual element of the collection
 	/// returns this so it can be chained.
 	ElementCollection opDispatch(string name, T...)(T t) {
@@ -706,8 +727,6 @@ string camelCase(string a) {
 // is good for building php.
 
 // I need to maintain compatibility with the way it is now too.
-
-import arsd.characterencodings;
 
 import std.string;
 import std.exception;
@@ -1255,7 +1274,8 @@ class Element {
 		string where = a.href; // same as a.getAttribute("href");
 	*/
 		// name != "popFront" is so duck typing doesn't think it's a range
-	@property string opDispatch(string name)(string v = null) if(name != "popFront") {
+	// deprecated("use element.attr instead")
+	@property string opDispatch(string name)(string v = null) if(name != "popFront" && name != "opCall") {
 		if(v !is null)
 			setAttribute(name, v);
 		return getAttribute(name);
@@ -1660,7 +1680,7 @@ class Element {
 		}
 
 		auto doc = new Document();
-		doc.parse("<innerhtml>" ~ html ~ "</innerhtml>", strict, strict); // FIXME: this should preserve the strictness of the parent document
+		doc.parseUtf8("<innerhtml>" ~ html ~ "</innerhtml>", strict, strict); // FIXME: this should preserve the strictness of the parent document
 
 		children = doc.root.children;
 		foreach(c; children) {
@@ -1695,7 +1715,7 @@ class Element {
 	*/
 	@property Element[] outerHTML(string html) {
 		auto doc = new Document();
-		doc.parse("<innerhtml>" ~ html ~ "</innerhtml>"); // FIXME: needs to preserve the strictness
+		doc.parseUtf8("<innerhtml>" ~ html ~ "</innerhtml>"); // FIXME: needs to preserve the strictness
 
 		children = doc.root.children;
 		foreach(c; children) {
@@ -1732,7 +1752,7 @@ class Element {
 	}
 
 	///.
-	Element replaceChild(Element find, Element replace) 
+	Element replaceChild(Element find, Element replace)
 		in {
 			assert(find !is null);
 			assert(replace !is null);
@@ -1906,7 +1926,7 @@ class Element {
 	{
 		auto e = Element.make(this.tagName);
 		e.parentDocument = this.parentDocument;
-		e.attributes = this.attributes.dup;
+		e.attributes = this.attributes.aadup;
 		e.selfClosed = this.selfClosed;
 		foreach(child; children) {
 			e.appendChild(child.cloned);
@@ -1923,7 +1943,7 @@ class Element {
 		// shallow clone
 		auto e = Element.make(this.tagName);
 		e.parentDocument = this.parentDocument;
-		e.attributes = this.attributes.dup;
+		e.attributes = this.attributes.aadup;
 		e.selfClosed = this.selfClosed;
 		return e;
 	}
@@ -2019,7 +2039,7 @@ class Element {
 	// I moved these from Form because they are generally useful.
 	// Ideally, I'd put them in arsd.html and use UFCS, but that doesn't work with the opDispatch here.
 	/// Tags: HTML, HTML5
-	// FIXME: add overloads for other label types... 
+	// FIXME: add overloads for other label types...
 	Element addField(string label, string name, string type = "text", FormFieldOptions fieldOptions = FormFieldOptions.none) {
 		auto fs = this;
 		auto i = fs.addChild("label");
@@ -2295,56 +2315,14 @@ dchar parseEntity(in dchar[] entity) {
 		case "trade": return '\u2122';
 
 		case "hellip": return '\u2026';
+		case "ndash": return '\u2013';
 		case "mdash": return '\u2014';
+		case "lsquo": return '\u2018';
+		case "rsquo": return '\u2019';
 
-		/*
-		case "cent":
-		case "pound":
-		case "sect":
-		case "deg":
-		case "micro"
-		*/
-		/*
-		case "egrave":
-			return '\u0038';
-		case "Egrave":
-			return '\u00c8';
-		case "times":
-			return '\u00d7';
-		case "hellip":
-			return '\u2026';
-		case "laquo":
-			return '\u00ab';
-		case "raquo":
-			return '\u00bb';
-		case "lsquo":
-			return '\u2018';
-		case "rsquo":
-			return '\u2019';
-		case "ldquo":
-			return '\u201c';
-		case "rdquo":
-			return '\u201d';
-		case "reg":
-			return '\u00ae';
-		case "trade":
-			return '\u2122';
-		case "nbsp":
-			return '\u00a0';
-		case "copy":
-			return '\u00a9';
-		case "eacute":
-			return '\u00e9';
-		case "mdash": return '\u2014';
-		case "ndash":
-			return '\u2013';
-		case "Omicron":
-			return '\u039f';
-		case "omicron":
-			return '\u03bf';
-		case "middot":
-			return '\u00b7';
-		*/
+		case "Omicron": return '\u039f'; 
+		case "omicron": return '\u03bf'; 
+
 		// and handling numeric entities
 		default:
 			if(entity[1] == '#') {
@@ -2368,7 +2346,7 @@ dchar parseEntity(in dchar[] entity) {
 					return cast(dchar) p;
 				}
 			} else
-				return '?';
+				return '\ufffd'; // replacement character diamond thing
 	}
 
 	assert(0);
@@ -2679,7 +2657,7 @@ class TextNode : Element {
 
 	///.
 	string contents;
-	// alias contents content; // I just mistype this a lot, 
+	// alias contents content; // I just mistype this a lot,
 }
 
 /**
@@ -3386,7 +3364,7 @@ struct Html {
 class Document : FileResource {
 	///.
 	this(string data, bool caseSensitive = false, bool strict = false) {
-		parse(data, caseSensitive, strict);
+		parseUtf8(data, caseSensitive, strict);
 	}
 
 	/**
@@ -3443,7 +3421,7 @@ class Document : FileResource {
 	/// Concatenates any consecutive text nodes
 	/*
 	void normalize() {
-		
+
 	}
 	*/
 
@@ -3475,7 +3453,7 @@ class Document : FileResource {
 	/// Return true if you want the node appended to the document.
 	bool delegate(string) parseSawPhpCode;
 
-	/// if it sees a <?xxx> that is not php or asp   
+	/// if it sees a <?xxx> that is not php or asp
 	/// it calls this function with the contents.
 	/// <?SOMETHING foo> calls parseSawQuestionInstruction("?SOMETHING foo")
 	/// Unlike the php/asp ones, this ends on the first > it sees, without requiring ?>.
@@ -3493,17 +3471,29 @@ class Document : FileResource {
 	/// (Case-insensitive, non-strict, determine character encoding from the data.)
 
 	/// NOTE: this makes no attempt at added security.
-	void parseGarbage(string data) {
+	///
+	/// It is a template so it lazily imports characterencodings.
+	void parseGarbage()(string data) {
 		parse(data, false, false, null);
 	}
 
 	/// Parses well-formed UTF-8, case-sensitive, XML or XHTML
 	/// Will throw exceptions on things like unclosed tags.
 	void parseStrict(string data) {
-		parse(data, true, true);
+		parseStream(toUtf8Stream(data), true, true);
 	}
 
-	Utf8Stream handleDataEncoding(in string rawdata, string dataEncoding, bool strict) {
+	/// Parses well-formed UTF-8 in loose mode (by default). Tries to correct
+	/// tag soup, but does NOT try to correct bad character encodings.
+	///
+	/// They will still throw an exception.
+	void parseUtf8(string data, bool caseSensitive = false, bool strict = false) {
+		parseStream(toUtf8Stream(data), caseSensitive, strict);
+	}
+
+	// this is a template so we get lazy import behavior
+	Utf8Stream handleDataEncoding()(in string rawdata, string dataEncoding, bool strict) {
+		import arsd.characterencodings;
 		// gotta determine the data encoding. If you know it, pass it in above to skip all this.
 		if(dataEncoding is null) {
 			dataEncoding = tryToDetermineEncoding(cast(const(ubyte[])) rawdata);
@@ -3594,6 +3584,12 @@ class Document : FileResource {
 		} else
 			data = rawdata;
 
+		return toUtf8Stream(data);
+	}
+
+	private
+	Utf8Stream toUtf8Stream(in string rawdata) {
+		string data = rawdata;
 		static if(is(Utf8Stream == string))
 			return data;
 		else
@@ -3632,8 +3628,16 @@ class Document : FileResource {
 		But, if you want the best behavior on wild data - figuring it out from the document
 		instead of assuming - you'll probably want to change that argument to null.
 
+		This is a template so it lazily imports arsd.characterencodings, which is required
+		to fix up data encodings.
+
+		If you are sure the encoding is good, try parseUtf8 or parseStrict to avoid the
+		dependency. If it is data from the Internet though, a random website, the encoding
+		is often a lie. This function, if dataEncoding == null, can correct for that, or
+		you can try parseGarbage. In those cases, arsd.characterencodings is required to
+		compile.
 	*/
-	void parse(in string rawdata, bool caseSensitive = false, bool strict = false, string dataEncoding = "UTF-8") {
+	void parse()(in string rawdata, bool caseSensitive = false, bool strict = false, string dataEncoding = "UTF-8") {
 		auto data = handleDataEncoding(rawdata, dataEncoding, strict);
 		parseStream(data, caseSensitive, strict);
 	}
@@ -4336,7 +4340,7 @@ class Document : FileResource {
 			if(strict)
 				assert(0, "empty document should be impossible in strict mode");
 			else
-				parse(`<html><head></head><body></body></html>`); // fill in a dummy document in loose mode since that's what browsers do
+				parseUtf8(`<html><head></head><body></body></html>`); // fill in a dummy document in loose mode since that's what browsers do
 		}
 
 		if(paragraphHackfixRequired) {
@@ -4460,7 +4464,7 @@ class Document : FileResource {
 			return null;
 		return e.content;
 	}
-	
+
 	/// Sets a meta tag in the document header. It is kinda hacky to work easily for both Facebook open graph and traditional html meta tags/
 	void setMeta(string name, string value) {
 		string thing = name.indexOf(":") == -1 ? "name" : "property";
@@ -4479,7 +4483,7 @@ class Document : FileResource {
 	}
 
 	///.
-	Form createForm() 
+	Form createForm()
 		out(ret) {
 			assert(ret !is null);
 		}
@@ -4491,7 +4495,7 @@ class Document : FileResource {
 	Element createElement(string name) {
 		if(loose)
 			name = name.toLower();
-	
+
 		auto e = Element.make(name);
 		e.parentDocument = this;
 
@@ -4599,7 +4603,7 @@ class XmlDocument : Document {
 		contentType = "text/xml; charset=utf-8";
 		_prolog = `<?xml version="1.0" encoding="UTF-8"?>` ~ "\n";
 
-		parse(data, true, true);
+		parseStrict(data);
 	}
 }
 
@@ -4700,7 +4704,7 @@ int intFromHex(string hex) {
 				}
 			return tid;
 		}
-	
+
 	///.
 	string[] lexSelector(string selector) {
 
@@ -4997,7 +5001,7 @@ int intFromHex(string hex) {
 				/*
 					Like with the < operator, this is best used to find some parent of a particular known element.
 
-					Say you have an anchor inside a 
+					Say you have an anchor inside a
 				*/
 		}
 
@@ -5764,7 +5768,7 @@ private T[] insertAfter(T)(T[] arr, int position, T[] what) {
 	int a = 0;
 	foreach(i; arr[0..position+1])
 		ret[a++] = i;
-	
+
 	foreach(i; what)
 		ret[a++] = i;
 
@@ -5781,7 +5785,7 @@ package bool isInArray(T)(T item, T[] arr) {
 	return false;
 }
 
-private string[string] dup(in string[string] arr) {
+private string[string] aadup(in string[string] arr) {
 	string[string] ret;
 	foreach(k, v; arr)
 		ret[k] = v;
@@ -6044,16 +6048,15 @@ class Utf8Stream {
 		+/
 }
 
-void fillForm(T)(Form form, T obj, string name) {
-	import arsd.database;
-	fillData((k, v) => form.setValue(k, v), obj, name);
-}
-
+void fillForm(T)(Form form, T obj, string name) { 
+	import arsd.database; 
+	fillData((k, v) => form.setValue(k, v), obj, name); 
+} 
 
 /*
 Copyright: Adam D. Ruppe, 2010 - 2013
 License:   <a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
-Authors: Adam D. Ruppe, with contributions by Nick Sabalausky and Trass3r
+Authors: Adam D. Ruppe, with contributions by Nick Sabalausky and Trass3r among others
 
         Copyright Adam D. Ruppe 2010-2013.
 Distributed under the Boost Software License, Version 1.0.

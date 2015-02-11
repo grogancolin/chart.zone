@@ -41,20 +41,6 @@ string mapFuncNamesToAA(string funcId){
         return toRet;
 }
 
-//Sometime there is no <a> tag so need to get artist name from just the div
-private string getArtistName(Element artistHtml){
-	string artistName;
-	try{
-		artistName = artistHtml.getElementsByTagName(`a`)[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces;
-		logInfo("Artist Name 1 : %s", artistName);
-	}
-	catch(std.exception.RangeError e1 ){
-		artistName = artistHtml.innerHTML.htmlEntitiesDecode.removeExtraSpaces;
-		logInfo("Artist Name 2 : %s", artistName);
-	}
-	return artistName;
-}
-
 shared static this(){
     mixin("chartGetters = [" ~ mapFuncNamesToAA("getChart_") ~ "];");
     chartTypes = chartGetters.keys;
@@ -498,10 +484,26 @@ public ChartEntry getChart_IrishTop100(){
 
 }
 
+/* Utilities for data scraping */
+
+/**
+ * Gets the web page from url
+ */
 public string getDataFromURL(string url){
 	return requestHTTP(url,
 			(scope req){}
 		).bodyReader.readAllUTF8();
 }
 
-
+//Sometime there is no <a> tag so need to get artist name from just the div
+/**
+ * Strips out an <a> tag in some charts
+ * */
+private string getArtistName(Element artistHtml){
+	
+	auto artistNames = artistHtml.getElementsByTagName(`a`);
+	
+	return artistNames.length > 0 ? 
+	artistNames[0].innerHTML.htmlEntitiesDecode.removeExtraSpaces.chomp.strip :
+	artistHtml.innerHTML.htmlEntitiesDecode.removeExtraSpaces;
+}
